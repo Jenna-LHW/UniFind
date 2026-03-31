@@ -31,16 +31,13 @@
                 <a href="#">Report</a>
                 <a href="#">Review</a>
                 <a href="#">Contact</a>
-                <a href="#">About Us</a>
             </nav>
 
             <!-- Auth buttons -->
             <div class="nav-auth">
                 {% if user.is_authenticated %}
                     <div class="nav-user-dropdown">
-                        <button class="btn-user">{{ user.username }}</button>
-                        <button class="btn-user"><a href="{% url 'logout' %}">Log out</a> </button>
-                        
+                        <a href="{% url 'profile' %}" class="btn-user">{{ user.username }}</a>
                     </div>
                 {% else %}
                     <a href="{% url 'register' %}" class="btn-dark">Register</a>
@@ -81,7 +78,6 @@
                 <a href="#">Report</a>
                 <a href="#">Review</a>
                 <a href="#">Contact</a>
-                <a href="#">About Us</a>
             </div>
 
             <div class="footer-contact">

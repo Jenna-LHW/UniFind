@@ -41,3 +41,7 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('home')
+
+@login_required(login_url='login')
+def profile_view(request):
+    return render(request, 'core/profile.html', {'user': request.user})
