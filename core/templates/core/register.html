@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | UniFind</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/auth.css' %}">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            
+            <h2 class="auth-title">Create Account</h2>
+            <p class="auth-subtitle">Join UniFind and start finding lost items</p>
+            
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-error">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label>Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <small class="error">{{ form.username.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <small class="error">{{ form.email.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Role</label>
+                    {{ form.role }}
+                    {% if form.role.errors %}
+                        <small class="error">{{ form.role.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Student ID</label>
+                    {{ form.student_id }}
+                    {% if form.student_id.errors %}
+                        <small class="error">{{ form.student_id.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Phone</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <small class="error">{{ form.phone.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <small class="error">{{ form.password1.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <small class="error">{{ form.password2.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="auth-btn">Register</button>
+            </form>
+                
+
+            <div class="auth-footer">
+                Already have an account? 
+                <a href="{% url 'login' %}">Login</a>
+            </div>
+
+        </div>
+    </div>
+</body>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const roleField = document.querySelector("#id_role");
+    const studentFieldWrapper = document.querySelector("#id_student_id")?.closest(".form-group");
+
+    if (!roleField || !studentFieldWrapper) return;
+
+    const STUDENT_VALUE = roleField.querySelector("option")?.value; // fallback
+
+    function toggle() {
+        if (roleField.value.toLowerCase().includes("student")) {
+            studentFieldWrapper.style.display = "block";
+        } else {
+            studentFieldWrapper.style.display = "none";
+        }
+    }
+
+    roleField.addEventListener("change", toggle);
+    toggle();
+});
+</script>
+</html>

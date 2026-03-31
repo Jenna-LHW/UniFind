@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}UniFind — UoM Lost & Found{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="navbar-inner">
+
+            <!-- Logo -->
+            <div class="nav-logo">
+                <img src="{% static 'core/images/logo.png' %}" alt="UniFind Logo">
+                <div class="nav-logo-text">
+                    <span class="logo-title">UniFind</span>
+                    <span class="logo-sub">University of Mauritius</span>
+                </div>
+            </div>
+
+            <!-- Nav links -->
+            <nav class="nav-links">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="#">Browse Items</a>
+                <a href="#">Report</a>
+                <a href="#">Review</a>
+                <a href="#">Contact</a>
+                <a href="#">About Us</a>
+            </nav>
+
+            <!-- Auth buttons -->
+            <div class="nav-auth">
+                {% if user.is_authenticated %}
+                    <div class="nav-user-dropdown">
+                        <button class="btn-user">{{ user.username }}</button>
+                        <button class="btn-user"><a href="{% url 'logout' %}">Log out</a> </button>
+                        
+                    </div>
+                {% else %}
+                    <a href="{% url 'register' %}" class="btn-dark">Register</a>
+                    <a href="{% url 'login' %}" class="btn-dark">Login</a>
+                {% endif %}
+            </div>
+
+        </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="main-content">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <p class="message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-inner">
+
+            <div class="footer-brand">
+                <h3>UniFind</h3>
+                <p>University of Mauritius's official lost and found platform
+                helping students and staff reunite with their belongings since 2025.</p>
+            </div>
+
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="#">Browse</a>
+                <a href="#">Report</a>
+                <a href="#">Review</a>
+                <a href="#">Contact</a>
+                <a href="#">About Us</a>
+            </div>
+
+            <div class="footer-contact">
+                <div class="contact-header">
+                    <h4>Contact Us</h4>
+                </div>
+
+                <ul>
+                    <li><i class="fa-solid fa-user"></i> Student Affairs Office</li>
+                    <li><i class="fa-solid fa-phone"></i> (+230) 12345678</li>
+                    <li><i class="fa-solid fa-envelope"></i> UniFind@uom.ac.mu</li>
+                </ul>
+            </div>
+
+            <div class="footer-social">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="#" class="social-circle">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-circle">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 UniFind - University of Mauritius. All rights reserved</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,16 @@
+# VS Code
+UniFind.code-workspace
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Database
+db.sqlite3
+
+# Django logs
+*.log
+
+# Static files (collected)
+staticfiles/
