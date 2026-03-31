@@ -1,0 +1,40 @@
+/* ── Edit profile form ── */
+.edit-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 8px;
+}
+
+.edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.edit-field label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #7a7670;
+}
+
+.edit-field input {
+    padding: 10px 14px;
+    border: 1px solid #d6d1c8;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #2c2c2a;
+    background: #f5f2ee;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.edit-field input:focus {
+    border-color: #5c4f3a;
+    background: #fff;
+}
+
+.field-error {
+    font-size: 12px;
+    color: #a32d2d;
+}

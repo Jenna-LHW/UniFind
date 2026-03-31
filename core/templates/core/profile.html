@@ -1,6 +1,6 @@
 {% extends 'core/base.html' %}
 {% block title %}My Profile — UniFind{% endblock %}
- {% load static %}
+{% load static %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/profile.css' %}">
 {% endblock %}
@@ -78,8 +78,12 @@
 
     <!-- Actions -->
     <div class="profile-actions">
-        <a href="#" class="btn-dark"><i class="fa-solid fa-pen"></i> Edit Profile</a>
-        <a href="{% url 'logout' %}" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+        <a href="{% url 'edit_profile' %}" class="btn-dark">
+            <i class="fa-solid fa-pen"></i> Edit Profile
+        </a>
+        <a href="{% url 'logout' %}" class="btn-logout">
+            <i class="fa-solid fa-right-from-bracket"></i> Log out
+        </a>
     </div>
 
 </div>

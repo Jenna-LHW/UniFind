@@ -28,3 +28,13 @@ class RegisterForm(UserCreationForm):
         if role == User.Role.STUDENT and not student_id:
             self.add_error('student_id', 'Student ID is required for students.')
         return cleaned_data
+
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model  = User
+        fields = ['first_name', 'last_name', 'phone']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'placeholder': 'First name'}),
+            'last_name':  forms.TextInput(attrs={'placeholder': 'Last name'}),
+            'phone':      forms.TextInput(attrs={'placeholder': 'e.g. (+230) 12345678'}),
+        }

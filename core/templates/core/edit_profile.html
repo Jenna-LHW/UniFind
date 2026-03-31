@@ -1,0 +1,61 @@
+{% extends 'core/base.html' %}
+{% block title %}Edit Profile — UniFind{% endblock %}
+
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/edit_profile.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div class="profile-container">
+
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="fa-solid fa-user"></i>
+        </div>
+        <div class="profile-header-info">
+            <h2>Edit Profile</h2>
+            <span class="role-badge role-{{ user.role }}">{{ user.get_role_display }}</span>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <h3><i class="fa-solid fa-pen"></i> Update your information</h3>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <div class="edit-fields">
+                {% for field in form %}
+                <div class="edit-field">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <span class="field-error">{{ field.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="profile-actions" style="margin-top: 24px;">
+                <button type="submit" class="btn-dark">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                </button>
+                <a href="{% url 'profile' %}" class="btn-logout">
+                    <i class="fa-solid fa-xmark"></i> Cancel
+                </a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+{% endblock %}
