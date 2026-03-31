@@ -1,0 +1,196 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Contact Us — UniFind{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/contact.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="contact-wrapper">
+
+    <!-- Left: Info panel -->
+    <div class="contact-info">
+        <h2>Get in Touch</h2>
+        <p>Have a question or need help? Reach out to us and we'll get back to you as soon as possible.</p>
+
+        <div class="info-items">
+            <div class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-location-dot"></i></div>
+                <div>
+                    <span class="info-label">Location</span>
+                    <span class="info-value">Student Affairs Office, UoM</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-phone"></i></div>
+                <div>
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">(+230) 12345678</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-envelope"></i></div>
+                <div>
+                    <span class="info-label">Email</span>
+                    <span class="info-value">UniFind@uom.ac.mu</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon"><i class="fa-solid fa-clock"></i></div>
+                <div>
+                    <span class="info-label">Office Hours</span>
+                    <span class="info-value">Mon – Fri, 9:00am – 4:00pm</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Form -->
+    <div class="contact-form-card">
+        <h3>Send us a message</h3>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="message {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form id="contact-form" method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_name">Full Name</label>
+                    <input type="text" name="name" id="id_name"
+                           value="{{ form.name.value|default:'' }}"
+                           placeholder="Your full name">
+                    <span class="field-error" id="err-name"></span>
+                </div>
+                <div class="form-group">
+                    <label for="id_email">Email Address</label>
+                    <input type="email" name="email" id="id_email"
+                           value="{{ form.email.value|default:'' }}"
+                           placeholder="your@uom.ac.mu">
+                    <span class="field-error" id="err-email"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_subject">Subject</label>
+                <input type="text" name="subject" id="id_subject"
+                       value="{{ form.subject.value|default:'' }}"
+                       placeholder="What is this about?">
+                <span class="field-error" id="err-subject"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="id_message">Message</label>
+                <textarea name="message" id="id_message"
+                          rows="5"
+                          placeholder="Write your message here...">{{ form.message.value|default:'' }}</textarea>
+                <span class="field-error" id="err-message"></span>
+            </div>
+
+            <div class="form-footer">
+                <span class="char-count" id="char-count">0 / 500</span>
+                <button type="submit" class="btn-dark" id="submit-btn">
+                    <i class="fa-solid fa-paper-plane"></i> Send Message
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+$(document).ready(function () {
+
+    // Character counter on message
+    $('#id_message').on('input', function () {
+        const len = $(this).val().length;
+        const max = 500;
+        $('#char-count').text(len + ' / ' + max);
+        if (len > max) {
+            $('#char-count').css('color', '#a32d2d');
+        } else {
+            $('#char-count').css('color', '#7a7670');
+        }
+    });
+
+    // Client-side validation before submit
+    $('#contact-form').on('submit', function (e) {
+        let valid = true;
+
+        // Clear previous errors
+        $('.field-error').text('');
+        $('input, textarea').removeClass('input-error');
+
+        // Name
+        const name = $('#id_name').val().trim();
+        if (name === '') {
+            $('#err-name').text('Please enter your name.');
+            $('#id_name').addClass('input-error');
+            valid = false;
+        }
+
+        // Email
+        const email = $('#id_email').val().trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email === '') {
+            $('#err-email').text('Please enter your email.');
+            $('#id_email').addClass('input-error');
+            valid = false;
+        } else if (!emailRegex.test(email)) {
+            $('#err-email').text('Please enter a valid email address.');
+            $('#id_email').addClass('input-error');
+            valid = false;
+        }
+
+        // Subject
+        const subject = $('#id_subject').val().trim();
+        if (subject === '') {
+            $('#err-subject').text('Please enter a subject.');
+            $('#id_subject').addClass('input-error');
+            valid = false;
+        }
+
+        // Message
+        const message = $('#id_message').val().trim();
+        if (message === '') {
+            $('#err-message').text('Please enter a message.');
+            $('#id_message').addClass('input-error');
+            valid = false;
+        } else if (message.length > 500) {
+            $('#err-message').text('Message must be 500 characters or less.');
+            $('#id_message').addClass('input-error');
+            valid = false;
+        }
+
+        if (!valid) {
+            e.preventDefault();
+        } else {
+            // Disable button to prevent double submit
+            $('#submit-btn').prop('disabled', true).html(
+                '<i class="fa-solid fa-spinner fa-spin"></i> Sending...'
+            );
+        }
+    });
+
+    // Clear error on input focus 
+    $('input, textarea').on('focus', function () {
+        const id = $(this).attr('id').replace('id_', '');
+        $('#err-' + id).text('');
+        $(this).removeClass('input-error');
+    });
+
+});
+</script>
+{% endblock %}

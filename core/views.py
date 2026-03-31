@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import RegisterForm, EditProfileForm
+from .forms import RegisterForm, EditProfileForm, ContactForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
@@ -54,3 +54,20 @@ def edit_profile_view(request):
         messages.success(request, "Profile updated successfully.")
         return redirect('profile')
     return render(request, 'core/edit_profile.html', {'form': form})
+
+
+def contact_view(request):
+    initial_data = {}
+    if request.user.is_authenticated:
+        initial_data = {
+            'name':  request.user.get_full_name() or request.user.username,
+            'email': request.user.email,
+        }
+
+    form = ContactForm(request.POST or None, initial=initial_data)
+
+    if request.method == 'POST' and form.is_valid():
+        messages.success(request, "Your message has been sent! We'll get back to you soon.")
+        return redirect('contact')
+
+    return render(request, 'core/contact.html', {'form': form})
