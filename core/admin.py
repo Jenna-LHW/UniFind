@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, ContactMessage
+from .models import User, ContactMessage, LostItem
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -11,11 +11,20 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display  = ['subject', 'name', 'email', 'submitted_at', 'is_read']
-    list_filter   = ['is_read']
+    list_display = ['subject', 'name', 'email', 'submitted_at', 'is_read']
+    list_filter = ['is_read']
     search_fields = ['name', 'email', 'subject']
     readonly_fields = ['name', 'email', 'subject', 'message', 'submitted_at', 'user']
-    ordering      = ['-submitted_at']
+    ordering = ['-submitted_at']
 
     def has_add_permission(self, request):
         return False
+
+@admin.register(LostItem)
+class LostItemAdmin(admin.ModelAdmin):
+    list_display = ['item_name', 'category', 'user', 'date_lost', 'status', 'submitted_at']
+    list_filter = ['category', 'status']
+    search_fields = ['item_name', 'user__username', 'last_seen']
+    readonly_fields = ['user', 'submitted_at']
+    list_editable = ['status']
+    ordering = ['-submitted_at']

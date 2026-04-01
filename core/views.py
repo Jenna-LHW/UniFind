@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import RegisterForm, EditProfileForm, ContactForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import ContactMessage
+from .forms import RegisterForm, EditProfileForm, ContactForm, LostItemForm
+from .models import ContactMessage, LostItem
 
 def home_view(request):
     return render(request, 'core/home.html', {'user': request.user})
@@ -79,3 +79,20 @@ def contact_view(request):
         return redirect('contact')
 
     return render(request, 'core/contact.html', {'form': form})
+
+@login_required(login_url='login')
+def report_lost_view(request):
+    initial_data = {
+        'username': request.user.username,
+        'email':    request.user.email,
+    }
+    form = LostItemForm(request.POST or None, request.FILES or None)
+
+    if request.method == 'POST' and form.is_valid():
+        lost_item = form.save(commit=False)
+        lost_item.user = request.user
+        lost_item.save()
+        messages.success(request, "Your lost item report has been submitted successfully.")
+        return redirect('report_lost')
+
+    return render(request, 'core/report_lost.html', {'form': form, 'user': request.user})
