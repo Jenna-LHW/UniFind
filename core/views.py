@@ -3,6 +3,7 @@ from django.contrib import messages
 from .forms import RegisterForm, EditProfileForm, ContactForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from .models import ContactMessage
 
 def home_view(request):
     return render(request, 'core/home.html', {'user': request.user})
@@ -67,6 +68,13 @@ def contact_view(request):
     form = ContactForm(request.POST or None, initial=initial_data)
 
     if request.method == 'POST' and form.is_valid():
+        ContactMessage.objects.create(
+            name = form.cleaned_data['name'],
+            email = form.cleaned_data['email'],
+            subject = form.cleaned_data['subject'],
+            message = form.cleaned_data['message'],
+            user = request.user if request.user.is_authenticated else None,
+        )
         messages.success(request, "Your message has been sent! We'll get back to you soon.")
         return redirect('contact')
 
