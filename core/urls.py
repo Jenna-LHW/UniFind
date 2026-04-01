@@ -10,6 +10,7 @@ urlpatterns = [
     path('profile/edit/', views.edit_profile_view, name='edit_profile'),
 
     path('report/lost/',  views.report_lost_view,  name='report_lost'),
+    path('report/found/', views.report_found_view, name='report_found'),
 
     path('contact/', views.contact_view, name='contact'),
 ]

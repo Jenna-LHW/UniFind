@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, LostItem
+from .models import User, LostItem, FoundItem
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -54,4 +54,15 @@ class LostItemForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'placeholder': 'Describe the item in detail — color, brand, size, any identifying marks...', 'rows': 4}),
             'last_seen': forms.TextInput(attrs={'placeholder': 'e.g. Near the library entrance'}),
             'date_lost': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class FoundItemForm(forms.ModelForm):
+    class Meta:
+        model  = FoundItem
+        fields = ['item_name', 'category', 'description', 'found_at', 'date_found', 'photo']
+        widgets = {
+            'item_name': forms.TextInput(attrs={'placeholder': 'e.g. Black HP Laptop'}),
+            'description': forms.Textarea(attrs={'placeholder': 'Describe the item in detail — color, brand, size, any identifying marks...', 'rows': 4}),
+            'found_at': forms.TextInput(attrs={'placeholder': 'e.g. Near the library entrance'}),
+            'date_found': forms.DateInput(attrs={'type': 'date'}),
         }

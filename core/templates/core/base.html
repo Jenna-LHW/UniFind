@@ -34,7 +34,7 @@
                     </a>
                     <div class="nav-dropdown-menu" id="report-menu">
                         <a href="{% url 'report_lost' %}"><i class="fa-solid fa-magnifying-glass"></i> Report Lost Item</a>
-                        <a href="#"><i class="fa-solid fa-box-open"></i> Report Found Item</a>
+                       <a href="{% url 'report_found' %}"><i class="fa-solid fa-box-open"></i> Report Found Item</a>
                     </div>
                 </div>
                 <a href="#">Review</a>
@@ -84,7 +84,7 @@
                 <a href="{% url 'home' %}">Home</a>
                 <a href="#">Browse</a>
                 <a href="{% url 'report_lost' %}">Report Lost Item</a>
-                <a href="#">Report Found Item</a>
+                <a href="{% url 'report_found' %}">Report Found Item</a>
                 <a href="#">Review</a>
                 <a href="{% url 'contact' %}">Contact</a>
             </div>

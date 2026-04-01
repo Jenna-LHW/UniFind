@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, ContactMessage, LostItem
+from .models import User, ContactMessage, LostItem, FoundItem
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -28,3 +28,12 @@ class LostItemAdmin(admin.ModelAdmin):
     readonly_fields = ['user', 'submitted_at']
     list_editable = ['status']
     ordering = ['-submitted_at']
+
+@admin.register(FoundItem)
+class FoundItemAdmin(admin.ModelAdmin):
+    list_display  = ['item_name', 'category', 'user', 'date_found', 'status', 'submitted_at']
+    list_filter   = ['category', 'status']
+    search_fields = ['item_name', 'user__username', 'found_at']
+    readonly_fields = ['user', 'submitted_at']
+    list_editable = ['status']
+    ordering      = ['-submitted_at']
