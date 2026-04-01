@@ -285,3 +285,36 @@ def ban_review_view(request, review_id):
         msg = "Review banned." if review.is_banned else "Review unbanned."
         messages.success(request, msg)
         return redirect('review')
+
+# API views
+from rest_framework import viewsets
+from .models import LostItem, FoundItem, ContactMessage, Review, ReviewReply
+from .serializers import (
+    LostItemSerializer, FoundItemSerializer,
+    ContactMessageSerializer, ReviewSerializer, ReviewReplySerializer
+)
+
+# Lost Items API
+class LostItemViewSet(viewsets.ModelViewSet):
+    queryset = LostItem.objects.all()
+    serializer_class = LostItemSerializer
+
+# Found Items API
+class FoundItemViewSet(viewsets.ModelViewSet):
+    queryset = FoundItem.objects.all()
+    serializer_class = FoundItemSerializer
+
+# Contact Messages API
+class ContactMessageViewSet(viewsets.ModelViewSet):
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+
+# Reviews API
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+# Review Replies API
+class ReviewReplyViewSet(viewsets.ModelViewSet):
+    queryset = ReviewReply.objects.all()
+    serializer_class = ReviewReplySerializer

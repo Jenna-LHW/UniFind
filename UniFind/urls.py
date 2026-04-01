@@ -18,8 +18,25 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+from core.views import (
+    LostItemViewSet,
+    FoundItemViewSet,
+    ContactMessageViewSet,
+    ReviewViewSet,
+    ReviewReplyViewSet
+)
+
+router = DefaultRouter()
+router.register(r'lost-items', LostItemViewSet)
+router.register(r'found-items', FoundItemViewSet)
+router.register(r'contacts', ContactMessageViewSet)
+router.register(r'reviews', ReviewViewSet)
+router.register(r'review-replies', ReviewReplyViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),
+    path('', include('core.urls')),  
+    path('api/', include(router.urls)),  
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
