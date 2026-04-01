@@ -33,7 +33,7 @@
                     </a>
                     <div class="nav-dropdown-menu" id="browse-menu">
                         <a href="{% url 'browse_lost' %}"><i class="fa-solid fa-magnifying-glass"></i> Browse Lost Items</a>
-                        <a href="#"><i class="fa-solid fa-box-open"></i> Browse Found Items</a>
+                        <a href="{% url 'browse_found' %}"><i class="fa-solid fa-box-open"></i> Browse Found Items</a>
                     </div>
                 </div>
                 <div class="nav-dropdown">
@@ -90,8 +90,8 @@
            <div class="footer-links">
                 <h4>Quick Links</h4>
                 <a href="{% url 'home' %}">Home</a>
-                <a href="#">Browse</a>
                 <a href="{% url 'browse_lost' %}">Browse Lost Items</a>
+                <a href="{% url 'browse_found' %}">Browse Found Items</a>
                 <a href="{% url 'report_lost' %}">Report Lost Item</a>
                 <a href="{% url 'report_found' %}">Report Found Item</a>
                 <a href="#">Review</a>

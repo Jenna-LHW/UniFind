@@ -135,3 +135,28 @@ def browse_lost_view(request):
         'selected_date': date,
         'categories': LostItem.Category.choices,
     })
+
+def browse_found_view(request):
+    items = FoundItem.objects.filter(status__in=['pending', 'active'])
+    keyword = request.GET.get('q', '')
+    category = request.GET.get('category', '')
+    date = request.GET.get('date', '')
+
+    if keyword:
+        items = items.filter(item_name__icontains=keyword) | items.filter(description__icontains=keyword)
+
+    if category:
+        items = items.filter(category=category)
+
+    if date:
+        parsed = parse_date(date)
+        if parsed:
+            items = items.filter(date_found=parsed)
+
+    return render(request, 'core/browse_found.html', {
+        'items': items,
+        'keyword': keyword,
+        'selected_category': category,
+        'selected_date': date,
+        'categories': FoundItem.Category.choices,
+    })

@@ -13,6 +13,7 @@ urlpatterns = [
     path('report/found/', views.report_found_view, name='report_found'),
 
     path('browse/lost/', views.browse_lost_view, name='browse_lost'),
+    path('browse/found/', views.browse_found_view, name='browse_found'),
 
     path('contact/', views.contact_view, name='contact'),
 ]
