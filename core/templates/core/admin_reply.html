@@ -1,0 +1,62 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Reply to Review — UniFind{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/admin_reply.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+
+    <div class="reply-header">
+        <div class="reply-header-top">
+            <h2>
+                <i class="fa-solid fa-reply"></i>
+                {% if form.instance.pk %}Edit Reply{% else %}Reply to Review{% endif %}
+            </h2>
+        </div>
+    </div>
+
+    <!-- Original review -->
+    <div class="profile-card" style="margin-bottom: 20px;">
+        <h3><i class="fa-solid fa-quote-left"></i> Original Review</h3>
+        <div style="margin-top: 12px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                <strong>{{ review.user.username }}</strong>
+                <span style="color:#7a7670; font-size:13px;">{{ review.created_at|date:"d M Y" }}</span>
+                {% for i in "12345" %}
+                    <i class="fa-star {% if forloop.counter <= review.rating %}fa-solid{% else %}fa-regular{% endif %}"
+                       style="color: {% if forloop.counter <= review.rating %}#e4a600{% else %}#d6d1c8{% endif %}; font-size:13px;"></i>
+                {% endfor %}
+            </div>
+            <p style="font-size:14px; color:#3d3d3a;">{{ review.comment }}</p>
+        </div>
+    </div>
+
+    <!-- Reply form -->
+    <div class="profile-card">
+        <h3><i class="fa-solid fa-reply"></i> Your Reply</h3>
+        <form method="post" style="margin-top: 16px;">
+            {% csrf_token %}
+            <div class="edit-field">
+                <label>Reply</label>
+                {{ form.comment }}
+                {% if form.comment.errors %}
+                    <span class="field-error">{{ form.comment.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="profile-actions" style="margin-top: 20px;">
+                <button type="submit" class="btn-dark">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Reply
+                </button>
+                <a href="{% url 'review' %}" class="btn-logout">
+                    <i class="fa-solid fa-xmark"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

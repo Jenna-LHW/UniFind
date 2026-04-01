@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import User, ContactMessage, LostItem, FoundItem
+from .models import Review, ReviewReply, ReviewLike
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -37,3 +38,26 @@ class FoundItemAdmin(admin.ModelAdmin):
     readonly_fields = ['user', 'submitted_at']
     list_editable = ['status']
     ordering      = ['-submitted_at']
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display  = ['user', 'rating', 'is_banned', 'created_at']
+    list_filter   = ['rating', 'is_banned']
+    search_fields = ['user__username', 'comment']
+    readonly_fields = ['user', 'rating', 'comment', 'created_at']
+    list_editable = ['is_banned']
+    ordering      = ['-created_at']
+
+    def has_add_permission(self, request):
+        return False
+
+@admin.register(ReviewReply)
+class ReviewReplyAdmin(admin.ModelAdmin):
+    list_display  = ['review', 'admin', 'created_at']
+    readonly_fields = ['review', 'created_at']
+    ordering      = ['-created_at']
+
+@admin.register(ReviewLike)
+class ReviewLikeAdmin(admin.ModelAdmin):
+    list_display  = ['user', 'review']
+    readonly_fields = ['user', 'review']

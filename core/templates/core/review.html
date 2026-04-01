@@ -1,0 +1,307 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Reviews — UniFind{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/review.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="review-container">
+
+    <!-- Page header -->
+    <div class="review-page-header">
+        <div class="review-header-icon"><i class="fa-solid fa-star"></i></div>
+        <div>
+            <h2>Community Reviews</h2>
+            <p>See what the UoM community thinks about UniFind.</p>
+        </div>
+    </div>
+
+    <div class="review-layout">
+
+        <!-- Left: Summary + Form -->
+        <div class="review-left">
+
+            <!-- Rating summary -->
+            <div class="rating-summary-card">
+                <div class="rating-big">
+                    <span class="rating-number">{{ avg_rating }}</span>
+                    <div class="rating-stars-display">
+                        {% for i in "12345" %}
+                            <i class="fa-star {% if forloop.counter <= avg_rating %}fa-solid{% else %}fa-regular{% endif %}"
+                               style="color: {% if forloop.counter <= avg_rating %}#e4a600{% else %}#d6d1c8{% endif %}"></i>
+                        {% endfor %}
+                    </div>
+                    <span class="rating-total">{{ total }} review{{ total|pluralize }}</span>
+                </div>
+
+                <div class="rating-bars">
+                    {% for i in "54321" %}
+                    {% with score=forloop.revcounter %}
+                    <div class="rating-bar-row">
+                        <span class="bar-label">{{ forloop.counter|add:"0" }}
+                            {% if forloop.counter == 1 %}5{% elif forloop.counter == 2 %}4
+                            {% elif forloop.counter == 3 %}3{% elif forloop.counter == 4 %}2
+                            {% else %}1{% endif %}★
+                        </span>
+                        <div class="bar-track">
+                            <div class="bar-fill"
+                                 style="width: {% if total %}{% widthratio rating_counts|dictsort:0|last|last total 100 %}{% else %}0{% endif %}%">
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Write a review -->
+            {% if user.is_authenticated %}
+                {% if user_review %}
+                    <div class="already-reviewed">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <p>You have already submitted a review. Thank you!</p>
+                    </div>
+                {% else %}
+                    <div class="write-review-card">
+                        <h3><i class="fa-solid fa-pen"></i> Write a Review</h3>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <p class="message {{ message.tags }}">{{ message }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" id="review-form">
+                            {% csrf_token %}
+                            {{ form.rating }}
+
+                            <div class="star-picker">
+                                <p>Your rating <span class="required">*</span></p>
+                                <div class="stars" id="star-picker">
+                                    {% for i in "12345" %}
+                                    <i class="fa-regular fa-star star-btn" data-value="{{ forloop.counter }}"></i>
+                                    {% endfor %}
+                                </div>
+                                <span class="field-error" id="rating-error"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Your Review <span class="required">*</span></label>
+                                {{ form.comment }}
+                                <span class="field-error">{{ form.comment.errors.0 }}</span>
+                            </div>
+
+                            <button type="submit" class="btn-dark">
+                                <i class="fa-solid fa-paper-plane"></i> Submit Review
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="login-prompt">
+                    <i class="fa-solid fa-lock"></i>
+                    <p>Please <a href="{% url 'login' %}">log in</a> to write a review.</p>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Right: Reviews list -->
+        <div class="review-right">
+
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="review-card" id="review-{{ review.id }}">
+
+                    <!-- Review header -->
+                    <div class="review-card-header">
+                        <div class="reviewer-avatar">
+                            {{ review.user.username|first|upper }}
+                        </div>
+                        <div class="reviewer-info">
+                            <span class="reviewer-name">{{ review.user.username }}</span>
+                            <span class="reviewer-role role-{{ review.user.role }}">{{ review.user.get_role_display }}</span>
+                            <span class="review-date">{{ review.created_at|date:"d M Y" }}</span>
+                        </div>
+                        <div class="review-stars">
+                            {% for i in "12345" %}
+                                <i class="fa-star {% if forloop.counter <= review.rating %}fa-solid{% else %}fa-regular{% endif %}"
+                                   style="color: {% if forloop.counter <= review.rating %}#e4a600{% else %}#d6d1c8{% endif %}; font-size:13px;"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Review body -->
+                    <p class="review-comment">{{ review.comment }}</p>
+
+                    <!-- Like button -->
+                    <div class="review-actions">
+                        {% if user.is_authenticated %}
+                            <button class="like-btn {% if review.id in liked_ids %}liked{% endif %}"
+                                    data-id="{{ review.id }}">
+                                <i class="fa-{% if review.id in liked_ids %}solid{% else %}regular{% endif %} fa-thumbs-up"></i>
+                                <span class="like-count">{{ review.total_likes }}</span> Helpful
+                            </button>
+                        {% else %}
+                            <span class="like-count-static">
+                                <i class="fa-regular fa-thumbs-up"></i> {{ review.total_likes }} Helpful
+                            </span>
+                        {% endif %}
+
+                        <!-- Admin actions -->
+                        {% if user.is_superuser or user.role == 'admin' %}
+                            <div class="admin-actions">
+                                <a href="{% url 'admin_reply' review.id %}" class="btn-admin-reply">
+                                    <i class="fa-solid fa-reply"></i>
+                                    {% if review.reply %}Edit Reply{% else %}Reply{% endif %}
+                                </a>
+                                <form method="post" action="{% url 'ban_review' review.id %}" class="ban-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-admin-ban">
+                                        <i class="fa-solid fa-ban"></i> Ban
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Admin reply -->
+                    {% if review.reply %}
+                    <div class="admin-reply">
+                        <div class="admin-reply-header">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>UniFind Team</span>
+                            <span class="reply-date">{{ review.reply.created_at|date:"d M Y" }}</span>
+                        </div>
+                        <p>{{ review.reply.comment }}</p>
+                    </div>
+                    {% endif %}
+
+                </div>
+                {% endfor %}
+
+            {% else %}
+                <div class="empty-state">
+                    <i class="fa-solid fa-star"></i>
+                    <h3>No reviews yet</h3>
+                    <p>Be the first to share your experience!</p>
+                </div>
+            {% endif %}
+
+            <!-- Banned reviews (admin only) -->
+            {% if user.is_superuser or user.role == 'admin' %}
+                {% if banned_reviews %}
+                <div class="banned-section">
+                    <h3><i class="fa-solid fa-ban"></i> Banned Reviews ({{ banned_reviews.count }})</h3>
+                    {% for review in banned_reviews %}
+                    <div class="review-card" style="opacity: 0.7; margin-bottom: 12px;">
+                        <div class="review-card-header">
+                            <div class="reviewer-avatar">{{ review.user.username|first|upper }}</div>
+                            <div class="reviewer-info">
+                                <span class="reviewer-name">{{ review.user.username }}</span>
+                                <span class="review-date">{{ review.created_at|date:"d M Y" }}</span>
+                            </div>
+                        </div>
+                        <p class="review-comment">{{ review.comment }}</p>
+                        {% if review.ban_reason %}
+                            <p style="font-size:12px; color:#a32d2d;">
+                                <i class="fa-solid fa-circle-info"></i> Ban reason: {{ review.ban_reason }}
+                            </p>
+                        {% endif %}
+                        <form method="post" action="{% url 'ban_review' review.id %}" style="margin-top:10px;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-admin-reply">
+                                <i class="fa-solid fa-rotate-left"></i> Unban
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+$(document).ready(function () {
+
+    // ── Star picker ──
+    const stars = $('.star-btn');
+    let selectedRating = 0;
+
+    stars.on('mouseover', function () {
+        const val = $(this).data('value');
+        stars.each(function (i) {
+            $(this).removeClass('fa-regular fa-solid');
+            $(this).addClass(i < val ? 'fa-solid' : 'fa-regular');
+            $(this).css('color', i < val ? '#e4a600' : '#d6d1c8');
+        });
+    });
+
+    stars.on('mouseleave', function () {
+        stars.each(function (i) {
+            $(this).removeClass('fa-regular fa-solid');
+            $(this).addClass(i < selectedRating ? 'fa-solid' : 'fa-regular');
+            $(this).css('color', i < selectedRating ? '#e4a600' : '#d6d1c8');
+        });
+    });
+
+    stars.on('click', function () {
+        selectedRating = $(this).data('value');
+        $('#id_rating').val(selectedRating);
+        stars.each(function (i) {
+            $(this).removeClass('fa-regular fa-solid');
+            $(this).addClass(i < selectedRating ? 'fa-solid' : 'fa-regular');
+            $(this).css('color', i < selectedRating ? '#e4a600' : '#d6d1c8');
+        });
+    });
+
+    // ── Form validation ──
+    $('#review-form').on('submit', function (e) {
+        let valid = true;
+
+        if (!selectedRating) {
+            $('#rating-error').text('Please select a rating.');
+            valid = false;
+        } else {
+            $('#rating-error').text('');
+        }
+
+        if ($('#id_comment').val().trim() === '') {
+            e.preventDefault();
+            valid = false;
+        }
+
+        if (!valid) e.preventDefault();
+    });
+
+    // ── Like button (AJAX) ──
+    $('.like-btn').on('click', function () {
+        const btn      = $(this);
+        const reviewId = btn.data('id');
+
+        $.post(`/review/${reviewId}/like/`, {
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }, function (data) {
+            btn.find('.like-count').text(data.total_likes);
+            if (data.liked) {
+                btn.addClass('liked');
+                btn.find('i').removeClass('fa-regular').addClass('fa-solid');
+            } else {
+                btn.removeClass('liked');
+                btn.find('i').removeClass('fa-solid').addClass('fa-regular');
+            }
+        });
+    });
+
+});
+</script>
+{% endblock %}

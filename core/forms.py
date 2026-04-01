@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, LostItem, FoundItem
+from .models import User, LostItem, FoundItem, Review, ReviewReply
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -65,4 +65,27 @@ class FoundItemForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'placeholder': 'Describe the item in detail — color, brand, size, any identifying marks...', 'rows': 4}),
             'found_at': forms.TextInput(attrs={'placeholder': 'e.g. Near the library entrance'}),
             'date_found': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model  = Review
+        fields = ['rating', 'comment']
+        widgets = {
+            'comment': forms.Textarea(attrs={
+                'placeholder': 'Share your experience with UniFind...',
+                'rows': 4
+            }),
+            'rating': forms.HiddenInput(),
+        }
+
+class AdminReplyForm(forms.ModelForm):
+    class Meta:
+        model  = ReviewReply
+        fields = ['comment']
+        widgets = {
+            'comment': forms.Textarea(attrs={
+                'placeholder': 'Write your reply...',
+                'rows': 3
+            }),
         }

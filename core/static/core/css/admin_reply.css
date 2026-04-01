@@ -1,0 +1,181 @@
+/* ===== Reply Header ===== */
+.reply-header {
+    margin-bottom: 20px;
+}
+
+.reply-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Title */
+.reply-header h2 {
+    font-size: 20px;
+    color: #2f4f4f;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Back button */
+.back-link {
+    font-size: 13px;
+    text-decoration: none;
+    color: #6fbf9f;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Subtext */
+.reply-subtext {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #7a7670;
+}
+
+/* ===== Container Overrides ===== */
+.profile-container {
+    max-width: 750px;
+    margin: 40px auto;
+}
+
+/* ===== Header (Reply Icon Styling) ===== */
+.profile-avatar {
+    background: linear-gradient(135deg, #6fbf9f, #4f9e85);
+    color: white;
+}
+
+/* ===== Card Styling ===== */
+.profile-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* ===== Section Titles ===== */
+.profile-card h3 {
+    font-size: 16px;
+    color: #2f4f4f;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ===== Original Review Box ===== */
+.profile-card p {
+    line-height: 1.5;
+}
+
+/* Review metadata row */
+.profile-card strong {
+    color: #2f4f4f;
+    font-size: 14px;
+}
+
+/* ===== Stars ===== */
+.fa-star {
+    margin-left: 2px;
+}
+
+/* ===== Form Styling ===== */
+.edit-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-field label {
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #2f4f4f;
+    font-weight: 500;
+}
+
+/* Textarea (Django form) */
+.edit-field textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #d6d1c8;
+    font-size: 14px;
+    resize: vertical;
+    transition: 0.2s ease;
+}
+
+/* Focus effect */
+.edit-field textarea:focus {
+    outline: none;
+    border-color: #6fbf9f;
+    box-shadow: 0 0 0 2px rgba(111, 191, 159, 0.2);
+}
+
+/* ===== Error Message ===== */
+.field-error {
+    color: #d9534f;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* ===== Buttons ===== */
+.profile-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Save button */
+.btn-dark {
+    background-color: #6fbf9f;
+    border: none;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.btn-dark:hover {
+    background-color: #5aa88a;
+}
+
+/* Cancel button */
+.btn-logout {
+    background-color: #f5f3ef;
+    color: #3d3d3a;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.btn-logout:hover {
+    background-color: #e7e3dc;
+}
+
+/* ===== Subtle Divider Between Sections ===== */
+.profile-card + .profile-card {
+    margin-top: 20px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+    .profile-container {
+        margin: 20px;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+    }
+
+    .btn-dark,
+    .btn-logout {
+        width: 100%;
+        text-align: center;
+    }
+}

@@ -5,6 +5,9 @@ from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, EditProfileForm, ContactForm, LostItemForm, FoundItemForm
 from .models import ContactMessage, LostItem, FoundItem
 from django.utils.dateparse import parse_date
+from .models import Review, ReviewReply, ReviewLike
+from .forms  import ReviewForm, AdminReplyForm
+from django.http import JsonResponse
 
 def home_view(request):
     return render(request, 'core/home.html', {'user': request.user})
@@ -160,3 +163,104 @@ def browse_found_view(request):
         'selected_date': date,
         'categories': FoundItem.Category.choices,
     })
+
+def review_view(request):
+    reviews     = Review.objects.filter(is_banned=False).select_related('user', 'reply')
+    user_review = None
+    form        = None
+
+    if request.user.is_authenticated:
+        user_review = Review.objects.filter(user=request.user).first()
+        form        = ReviewForm(request.POST or None)
+
+        if request.method == 'POST' and form.is_valid():
+            if user_review:
+                messages.error(request, "You have already submitted a review.")
+            else:
+                review      = form.save(commit=False)
+                review.user = request.user
+                review.save()
+                messages.success(request, "Your review has been submitted!")
+            return redirect('review')
+
+    # Rating summary
+    all_reviews  = Review.objects.filter(is_banned=False)
+    total        = all_reviews.count()
+    avg_rating   = round(sum(r.rating for r in all_reviews) / total, 1) if total else 0
+    rating_counts = {i: all_reviews.filter(rating=i).count() for i in range(1, 6)}
+
+    # Liked reviews by current user
+    liked_ids = []
+    if request.user.is_authenticated:
+        liked_ids = list(ReviewLike.objects.filter(
+            user=request.user
+        ).values_list('review_id', flat=True))
+
+    banned_reviews = Review.objects.filter(is_banned=True) if (
+        request.user.is_authenticated and (
+            request.user.is_superuser or request.user.role == 'admin'
+        )
+    ) else []
+
+    return render(request, 'core/review.html', {
+        'reviews':        reviews,
+        'banned_reviews': banned_reviews,
+        'form':           form,
+        'user_review':    user_review,
+        'avg_rating':     avg_rating,
+        'total':          total,
+        'rating_counts':  rating_counts,
+        'liked_ids':      liked_ids,
+    })
+
+@login_required(login_url='login')
+def like_review_view(request, review_id):
+    if request.method == 'POST':
+        review = Review.objects.get(id=review_id)
+        like, created = ReviewLike.objects.get_or_create(user=request.user, review=review)
+        if not created:
+            like.delete()
+            liked = False
+        else:
+            liked = True
+        return JsonResponse({'liked': liked, 'total_likes': review.total_likes()})
+
+
+@login_required(login_url='login')
+def admin_reply_view(request, review_id):
+    if not request.user.is_superuser and request.user.role != 'admin':
+        return redirect('review')
+
+    review = Review.objects.get(id=review_id)
+    reply  = getattr(review, 'reply', None)
+    form   = AdminReplyForm(request.POST or None, instance=reply)
+
+    if request.method == 'POST' and form.is_valid():
+        r         = form.save(commit=False)
+        r.review  = review
+        r.admin   = request.user
+        r.save()
+        messages.success(request, "Reply saved successfully.")
+        return redirect('review')
+
+    return render(request, 'core/admin_reply.html', {
+        'form':   form,
+        'review': review,
+    })
+
+
+@login_required(login_url='login')
+def ban_review_view(request, review_id):
+    if not request.user.is_superuser and request.user.role != 'admin':
+        return redirect('review')
+
+    review = Review.objects.get(id=review_id)
+
+    if request.method == 'POST':
+        ban_reason      = request.POST.get('ban_reason', '')
+        review.is_banned = not review.is_banned
+        review.ban_reason = ban_reason if not review.is_banned else ''
+        review.save()
+        msg = "Review banned." if review.is_banned else "Review unbanned."
+        messages.success(request, msg)
+        return redirect('review')

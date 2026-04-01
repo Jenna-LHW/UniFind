@@ -93,3 +93,42 @@ class FoundItem(models.Model):
 
     def __str__(self):
         return f"{self.item_name} — {self.user.username}"
+
+class Review(models.Model):
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    rating     = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)])
+    comment    = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_banned  = models.BooleanField(default=False)
+    ban_reason = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} — {self.rating}★"
+
+    def total_likes(self):
+        return self.likes.count()
+
+
+class ReviewReply(models.Model):
+    review     = models.OneToOneField(Review, on_delete=models.CASCADE, related_name='reply')
+    admin      = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment    = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Reply to {self.review}"
+
+
+class ReviewLike(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='likes')
+    user   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_likes')
+
+    class Meta:
+        unique_together = ('review', 'user')
+
+    def __str__(self):
+        return f"{self.user.username} likes review {self.review.id}"
