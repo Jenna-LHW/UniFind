@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, EditProfileForm, ContactForm, LostItemForm, FoundItemForm
 from .models import ContactMessage, LostItem, FoundItem
+from django.utils.dateparse import parse_date
 
 def home_view(request):
     return render(request, 'core/home.html', {'user': request.user})
@@ -109,3 +110,28 @@ def report_found_view(request):
         return redirect('report_found')
 
     return render(request, 'core/report_found.html', {'form': form, 'user': request.user})
+
+def browse_lost_view(request):
+    items = LostItem.objects.filter(status__in=['pending', 'active'])
+    keyword = request.GET.get('q', '')
+    category = request.GET.get('category', '')
+    date = request.GET.get('date', '')
+
+    if keyword:
+        items = items.filter(item_name__icontains=keyword) | items.filter(description__icontains=keyword)
+
+    if category:
+        items = items.filter(category=category)
+
+    if date:
+        parsed = parse_date(date)
+        if parsed:
+            items = items.filter(date_lost=parsed)
+
+    return render(request, 'core/browse_lost.html', {
+        'items': items,
+        'keyword': keyword,
+        'selected_category': category,
+        'selected_date': date,
+        'categories': LostItem.Category.choices,
+    })

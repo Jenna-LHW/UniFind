@@ -27,7 +27,15 @@
             <!-- Nav links -->
             <nav class="nav-links">
                 <a href="{% url 'home' %}">Home</a>
-                <a href="#">Browse Items</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-dropdown-toggle" id="browse-toggle">
+                        Browse Items <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i>
+                    </a>
+                    <div class="nav-dropdown-menu" id="browse-menu">
+                        <a href="{% url 'browse_lost' %}"><i class="fa-solid fa-magnifying-glass"></i> Browse Lost Items</a>
+                        <a href="#"><i class="fa-solid fa-box-open"></i> Browse Found Items</a>
+                    </div>
+                </div>
                 <div class="nav-dropdown">
                     <a href="#" class="nav-dropdown-toggle" id="report-toggle">
                         Report <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i>
@@ -83,6 +91,7 @@
                 <h4>Quick Links</h4>
                 <a href="{% url 'home' %}">Home</a>
                 <a href="#">Browse</a>
+                <a href="{% url 'browse_lost' %}">Browse Lost Items</a>
                 <a href="{% url 'report_lost' %}">Report Lost Item</a>
                 <a href="{% url 'report_found' %}">Report Found Item</a>
                 <a href="#">Review</a>
@@ -124,11 +133,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
         $(document).ready(function () {
-
             // Toggle dropdown on click
-            $('#report-toggle').on('click', function (e) {
+           $('#report-toggle').on('click', function (e) {
                 e.preventDefault();
                 $('#report-menu').slideToggle(200);
+                $('#browse-menu').slideUp(200);
             });
 
             // Close dropdown when clicking anywhere else
@@ -138,6 +147,20 @@
                 }
             });
 
+            // Browse dropdown
+            $('#browse-toggle').on('click', function (e) {
+                e.preventDefault();
+                $('#browse-menu').slideToggle(200);
+                $('#report-menu').slideUp(200);
+            });
+
+            // Also close browse when clicking outside
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('.nav-dropdown').length) {
+                    $('#report-menu').slideUp(200);
+                    $('#browse-menu').slideUp(200);
+                }
+            });
         });
     </script>
 </body>

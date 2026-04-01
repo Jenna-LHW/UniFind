@@ -1,0 +1,139 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Browse Lost Items — UniFind{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/browse.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="browse-container">
+
+    <!-- Page header -->
+    <div class="browse-header">
+        <div class="browse-header-icon">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <div>
+            <h2>Browse Lost Items</h2>
+            <p>{{ items.count }} item{{ items.count|pluralize }} reported lost on campus.</p>
+        </div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'report_lost' %}" class="btn-dark" style="margin-left:auto;">
+            <i class="fa-solid fa-plus"></i> Report Lost Item
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filters -->
+    <form method="get" id="filter-form">
+        <div class="filter-bar">
+
+            <div class="filter-group">
+                <i class="fa-solid fa-magnifying-glass filter-icon"></i>
+                <input type="text" name="q" id="search-input"
+                       placeholder="Search by name or description..."
+                       value="{{ keyword }}">
+            </div>
+
+            <div class="filter-group">
+                <i class="fa-solid fa-tag filter-icon"></i>
+                <select name="category" id="category-select">
+                    <option value="">All Categories</option>
+                    {% for value, label in categories %}
+                        <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <i class="fa-solid fa-calendar filter-icon"></i>
+                <input type="date" name="date" id="date-input" value="{{ selected_date }}">
+            </div>
+
+            <button type="submit" class="btn-dark">
+                <i class="fa-solid fa-filter"></i> Filter
+            </button>
+
+            {% if keyword or selected_category or selected_date %}
+            <a href="{% url 'browse_lost' %}" class="btn-clear">
+                <i class="fa-solid fa-xmark"></i> Clear
+            </a>
+            {% endif %}
+
+        </div>
+    </form>
+
+    <!-- Results -->
+    {% if items %}
+        <div class="items-grid">
+            {% for item in items %}
+            <div class="item-card">
+
+                <!-- Photo -->
+                <div class="item-photo">
+                    {% if item.photo %}
+                        <img src="{{ item.photo.url }}" alt="{{ item.item_name }}">
+                    {% else %}
+                        <div class="item-no-photo">
+                            <i class="fa-solid fa-image"></i>
+                            <span>No photo</span>
+                        </div>
+                    {% endif %}
+                    <span class="item-category-badge">{{ item.get_category_display }}</span>
+                </div>
+
+                <!-- Info -->
+                <div class="item-info">
+                    <h4 class="item-name">{{ item.item_name }}</h4>
+                    <p class="item-desc">{{ item.description|truncatechars:80 }}</p>
+
+                    <div class="item-meta">
+                        <span><i class="fa-solid fa-location-dot"></i> {{ item.last_seen|truncatechars:30 }}</span>
+                        <span><i class="fa-solid fa-calendar"></i> {{ item.date_lost|date:"d M Y" }}</span>
+                    </div>
+
+                    <div class="item-footer">
+                        <span class="item-status status-{{ item.status }}">{{ item.get_status_display }}</span>
+                        <span class="item-user"><i class="fa-solid fa-user"></i> {{ item.user.username }}</span>
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <div class="empty-state">
+            <i class="fa-solid fa-box-open"></i>
+            <h3>No lost items found</h3>
+            <p>
+                {% if keyword or selected_category or selected_date %}
+                    Try adjusting your filters.
+                {% else %}
+                    No lost items have been reported yet.
+                {% endif %}
+            </p>
+            {% if keyword or selected_category or selected_date %}
+                <a href="{% url 'browse_lost' %}" class="btn-dark">Clear filters</a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+$(document).ready(function () {
+    // Auto submit on category or date change
+    $('#category-select, #date-input').on('change', function () {
+        $('#filter-form').submit();
+    });
+});
+</script>
+{% endblock %}

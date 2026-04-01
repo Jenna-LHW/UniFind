@@ -12,5 +12,7 @@ urlpatterns = [
     path('report/lost/',  views.report_lost_view,  name='report_lost'),
     path('report/found/', views.report_found_view, name='report_found'),
 
+    path('browse/lost/', views.browse_lost_view, name='browse_lost'),
+
     path('contact/', views.contact_view, name='contact'),
 ]
