@@ -1,5 +1,122 @@
 {% extends 'core/base.html' %}
+{% block body_class %}home-page{% endblock %}
+{% load static %}
+
 {% block title %}Home — UniFind{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/home.css' %}">
+{% endblock %}
+
 {% block content %}
-    <h2>Welcome to UniFind</h2>
+
+<!-- ── Hero ── -->
+<section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1>Lost Something?<br>Found Something?</h1>
+        <p>Report it now and let the UoM community help you!</p>
+        <div class="hero-btns">
+            <a href="{% url 'report_lost' %}" class="hero-btn-outline">Report Lost Item</a>
+            <a href="{% url 'report_found' %}" class="hero-btn-outline">Report Found Item</a>
+        </div>
+    </div>
+</section>
+
+<!-- ── How it works ── -->
+<section class="how-section">
+    <h2>How It Works</h2>
+    <div class="how-grid">
+        <div class="how-card">
+            <div class="how-icon"><i class="fa-solid fa-flag"></i></div>
+            <h3>Report Items</h3>
+            <p>Quickly report lost or found items with photos and detailed description. Takes less than 3 minutes.</p>
+        </div>
+        <div class="how-card">
+            <div class="how-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <h3>Search & Browse</h3>
+            <p>Browse through all reported items with powerful filters by category, and date.</p>
+        </div>
+        <div class="how-card">
+            <div class="how-icon"><i class="fa-solid fa-handshake"></i></div>
+            <h3>Connect & Reclaim</h3>
+            <p>Get in touch with the person who found your item and safely recover it.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ── Stats ── -->
+<section class="stats-section">
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-number">100+</span>
+            <span class="stat-label">Items Reunited</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ total_users }}+</span>
+            <span class="stat-label">Active Users</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ total_items }}+</span>
+            <span class="stat-label">Items Reported</span>
+        </div>
+    </div>
+</section>
+
+<!-- ── Recent items ── -->
+<section class="recent-section">
+    <h2>Recent Items</h2>
+
+    <div class="recent-grid">
+        {% for item in recent_items %}
+        <div class="recent-card">
+
+            <div class="recent-photo">
+                {% if item.photo %}
+                    <img src="{{ item.photo.url }}" alt="{{ item.item_name }}">
+                {% else %}
+                    <div class="recent-no-photo">
+                        <i class="fa-solid fa-image"></i>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="recent-info">
+                {% if item.date_found %}
+                    <span class="recent-badge badge-found">Found</span>
+                {% else %}
+                    <span class="recent-badge badge-lost">Lost</span>
+                {% endif %}
+
+                <h4>{{ item.item_name }}</h4>
+
+                <p class="recent-location">
+                    <i class="fa-solid fa-location-dot"></i>
+                    {% if item.found_at %}{{ item.found_at|truncatechars:30 }}
+                    {% else %}{{ item.last_seen|truncatechars:30 }}{% endif %}
+                    &nbsp;—&nbsp;
+                    {% if item.date_found %}{{ item.date_found|date:"d M Y" }}
+                    {% else %}{{ item.date_lost|date:"d M Y" }}{% endif %}
+                </p>
+
+                {% if item.date_found %}
+                    <a href="{% url 'browse_found' %}" class="btn-view">View Details</a>
+                {% else %}
+                    <a href="{% url 'browse_lost' %}" class="btn-view">View Details</a>
+                {% endif %}
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="no-recent">
+            <p>No items reported yet. <a href="{% url 'report_lost' %}">Be the first!</a></p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="view-all">
+        <a href="{% url 'browse_lost' %}" class="btn-dark">View All Items</a>
+    </div>
+</section>
+
 {% endblock %}

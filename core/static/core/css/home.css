@@ -1,0 +1,269 @@
+/* Override main-content padding for home page full-width sections */
+.home-page .main-content { padding: 0; max-width: 100%; }
+
+/* ── Hero ── */
+.hero {
+    position: relative;
+    width: 100%;
+    min-height: 420px;
+    background: url('../images/background.jpeg') center center / cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(245, 242, 238, 0.72);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 60px 24px;
+}
+
+.hero-content h1 {
+    font-size: 40px;
+    font-weight: 700;
+    color: #2c2c2a;
+    line-height: 1.2;
+    margin-bottom: 16px;
+}
+
+.hero-content p {
+    font-size: 16px;
+    color: #5c5e5a;
+    margin-bottom: 32px;
+}
+
+.hero-btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.hero-btn-outline {
+    padding: 11px 28px;
+    border: 2px solid #5c4f3a;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #5c4f3a;
+    background: transparent;
+    transition: all 0.2s;
+}
+
+.hero-btn-outline:hover {
+    background: #5c4f3a;
+    color: #f5f2ee;
+}
+
+/* ── How it works ── */
+.how-section {
+    padding: 64px 24px;
+    text-align: center;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.how-section h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c2c2a;
+    margin-bottom: 40px;
+}
+
+.how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.how-card {
+    background: #fff;
+    border: 1px solid #d6d1c8;
+    border-radius: 14px;
+    padding: 36px 28px;
+    text-align: center;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.how-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    transform: translateY(-3px);
+}
+
+.how-icon {
+    width: 64px;
+    height: 64px;
+    background: #ede9e3;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.how-icon i { font-size: 24px; color: #5c4f3a; }
+
+.how-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c2c2a;
+    margin-bottom: 10px;
+}
+
+.how-card p { font-size: 13px; color: #7a7670; line-height: 1.7; }
+
+/* ── Stats ── */
+.stats-section {
+    background: #ede9e3;
+    padding: 56px 24px;
+}
+
+.stats-grid {
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: 700;
+    color: #2c2c2a;
+}
+
+.stat-label { font-size: 13px; color: #7a7670; }
+
+/* ── Recent items ── */
+.recent-section {
+    padding: 64px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.recent-section h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c2c2a;
+    margin-bottom: 36px;
+}
+
+.recent-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 36px;
+    text-align: left;
+}
+
+.recent-card {
+    background: #fff;
+    border: 1px solid #d6d1c8;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.recent-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+
+.recent-photo {
+    height: 180px;
+    background: #f5f2ee;
+    overflow: hidden;
+}
+
+.recent-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.recent-no-photo {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #b4b2a9;
+    font-size: 36px;
+}
+
+.recent-info { padding: 16px; }
+
+.recent-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.badge-found { background: #3b5c38; color: #fff; }
+.badge-lost  { background: #5c3a38; color: #fff; }
+
+.recent-info h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c2c2a;
+    margin-bottom: 6px;
+}
+
+.recent-location {
+    font-size: 12px;
+    color: #7a7670;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.recent-location i { color: #5c4f3a; }
+
+.btn-view {
+    display: block;
+    width: 100%;
+    padding: 9px;
+    background: #5c4f3a;
+    color: #f5f2ee;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    transition: background 0.2s;
+}
+
+.btn-view:hover { background: #4a3f2e; }
+
+.no-recent {
+    grid-column: 1 / -1;
+    padding: 40px;
+    text-align: center;
+    color: #7a7670;
+    font-size: 14px;
+}
+
+.no-recent a { color: #5c4f3a; font-weight: 600; }
+
+.view-all { text-align: center; }
