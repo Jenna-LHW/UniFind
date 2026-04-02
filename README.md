@@ -1,6 +1,5 @@
 # UniFind – Lost & Found Management System
 ## Table of Contents
-## 📑 Table of Contents
 
 - [Overview](#overview)
 - [Screenshots](#screenshots)
