@@ -294,7 +294,7 @@ from .serializers import (
     LostItemSerializer, FoundItemSerializer,
     ContactMessageSerializer, ReviewSerializer, ReviewReplySerializer, RegisterSerializer
 )
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 
 User = get_user_model()
 
@@ -302,21 +302,34 @@ User = get_user_model()
 class LostItemViewSet(viewsets.ModelViewSet):
     queryset = LostItem.objects.all()
     serializer_class = LostItemSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 # Found Items API
 class FoundItemViewSet(viewsets.ModelViewSet):
     queryset = FoundItem.objects.all()
     serializer_class = FoundItemSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 # Contact Messages API
 class ContactMessageViewSet(viewsets.ModelViewSet):
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageSerializer
+    permission_classes = [AllowAny]
 
 # Reviews API
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
+    queryset = Review.objects.filter(is_banned=False)
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 # Review Replies API
 class ReviewReplyViewSet(viewsets.ModelViewSet):
@@ -338,6 +351,13 @@ class UserView(APIView):
 
     def get(self, request):
         return Response({
+            "id": request.user.id,
             "username": request.user.username,
-            "email": request.user.email
+            "email": request.user.email,
+            "first_name": request.user.first_name,
+            "last_name": request.user.last_name,
+            "role": request.user.role,
+            "phone": request.user.phone,
+            "student_id": request.user.student_id,
+            "date_joined": request.user.date_joined,
         })
