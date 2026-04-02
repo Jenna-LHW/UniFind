@@ -28,6 +28,12 @@ from core.views import (
     ReviewReplyViewSet
 )
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+from core.views import RegisterView, UserView
+
 router = DefaultRouter()
 router.register(r'lost-items', LostItemViewSet)
 router.register(r'found-items', FoundItemViewSet)
@@ -37,6 +43,13 @@ router.register(r'review-replies', ReviewReplyViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),  
+    path('', include('core.urls')),
+
     path('api/', include(router.urls)),  
+
+    # AUTH API
+    path('api/auth/register/', RegisterView.as_view()),
+    path('api/auth/login/', TokenObtainPairView.as_view()),
+    path('api/auth/refresh/', TokenRefreshView.as_view()),
+    path('api/auth/user/', UserView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

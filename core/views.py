@@ -287,12 +287,16 @@ def ban_review_view(request, review_id):
         return redirect('review')
 
 # API views
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
+from django.contrib.auth import get_user_model
 from .models import LostItem, FoundItem, ContactMessage, Review, ReviewReply
 from .serializers import (
     LostItemSerializer, FoundItemSerializer,
-    ContactMessageSerializer, ReviewSerializer, ReviewReplySerializer
+    ContactMessageSerializer, ReviewSerializer, ReviewReplySerializer, RegisterSerializer
 )
+from rest_framework.permissions import AllowAny, IsAuthenticated
+
+User = get_user_model()
 
 # Lost Items API
 class LostItemViewSet(viewsets.ModelViewSet):
@@ -318,3 +322,22 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class ReviewReplyViewSet(viewsets.ModelViewSet):
     queryset = ReviewReply.objects.all()
     serializer_class = ReviewReplySerializer
+
+# Register
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
+
+# Get current user
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+class UserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({
+            "username": request.user.username,
+            "email": request.user.email
+        })

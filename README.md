@@ -25,20 +25,22 @@ The system provides a **RESTful API** built with Django REST Framework, allowing
 
 ### API Features
 
-* Fully RESTful endpoints
+* Fully RESTful endpoints with JSON responses
+* Authentication for secure access
 * CRUD operations for:
 
   * Lost Items
   * Found Items
   * Contact Messages
   * Reviews & Replies
-* JSON responses for easy frontend integration
+  * Users
 
 ## Tech Stack
 
 * **Backend:** Django
 * **API:** Django REST Framework
 * **Database:** SQLite (default) 
+* **Media Handling:** Pillow (for images)
 
 
 ## Project Structure
@@ -133,6 +135,16 @@ http://127.0.0.1:8000/api/
 | GET    | /reviews/ | List reviews    |
 | POST   | /reviews/ | Add review      |
 | POST   | /replies/ | Reply to review |
+
+### Users
+| Method | Endpoint   | Description                 |
+| ------ | ---------- | --------------------------- |
+| POST   | /register/ | Create new user account     |
+| POST   | /login/    | Login and obtain auth token |
+| POST   | /logout/   | Logout user                 |
+| GET    | /profile/  | View own profile            |
+| PUT    | /profile/  | Edit user profile           |
+
 
 ## Router Configuration
 
