@@ -7,15 +7,35 @@ User = get_user_model()
 
 # Lost Item Serializer
 class LostItemSerializer(serializers.ModelSerializer):
+    photo = serializers.SerializerMethodField()
+
     class Meta:
-        model = LostItem
+        model  = LostItem
         fields = '__all__'
+
+    def get_photo(self, obj):
+        if obj.photo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.photo.url)
+            return f'http://127.0.0.1:8000{obj.photo.url}'
+        return None
 
 # Found Item Serializer
 class FoundItemSerializer(serializers.ModelSerializer):
+    photo = serializers.SerializerMethodField()
+
     class Meta:
-        model = FoundItem
+        model  = FoundItem
         fields = '__all__'
+
+    def get_photo(self, obj):
+        if obj.photo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.photo.url)
+            return f'http://127.0.0.1:8000{obj.photo.url}'
+        return None
 
 # Contact Message Serializer
 class ContactMessageSerializer(serializers.ModelSerializer):
