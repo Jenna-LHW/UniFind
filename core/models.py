@@ -149,6 +149,29 @@ class Claim(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        
+        item = self.lost_item or self.found_item
+
+        if self.lost_item:
+            if self.status == 'pending':
+                item.status = 'found'
+            elif self.status == 'returned':
+                item.status = 'resolved'
+            elif self.status == 'rejected':
+                item.status = 'pending'
+
+        elif self.found_item:
+            if self.status == 'pending':
+                item.status = 'claimed'
+            elif self.status == 'returned':
+                item.status = 'resolved'
+            elif self.status == 'rejected':
+                item.status = 'pending'
+
+        item.save()
+
     def __str__(self):
         item = self.lost_item or self.found_item
         return f"Claim by {self.claimer.username} for {item.item_name}"

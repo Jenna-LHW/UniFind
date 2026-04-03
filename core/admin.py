@@ -65,14 +65,21 @@ class ReviewLikeAdmin(admin.ModelAdmin):
 
 @admin.action(description='Verify and Mark as Returned')
 def mark_returned(modeladmin, request, queryset):
-    queryset.update(status='returned')
-    # Note: The browse views are filtered to exclude items with 'returned' claims
+    for claim in queryset:
+        claim.status = 'returned'
+        claim.save()
+
+@admin.action(description='Reject Claim')
+def mark_rejected(modeladmin, request, queryset):
+    for claim in queryset:
+        claim.status = 'rejected'
+        claim.save()
     
 @admin.register(Claim)
 class ClaimAdmin(admin.ModelAdmin):
     list_display = ['claimer', 'get_item_name', 'status', 'created_at']
     list_filter = ['status']
-    actions = [mark_returned]
+    actions = [mark_returned, mark_rejected]
 
     def get_item_name(self, obj):
         item = obj.lost_item or obj.found_item
