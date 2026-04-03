@@ -43,7 +43,7 @@ class LostItem(models.Model):
 
     class Status(models.TextChoices):
         PENDING = 'pending', 'Pending'
-        ACTIVE = 'active', 'Active'
+        FOUND = 'found', 'Found'
         RESOLVED = 'resolved', 'Resolved'
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lost_items')
@@ -75,7 +75,7 @@ class FoundItem(models.Model):
 
     class Status(models.TextChoices):
         PENDING  = 'pending', 'Pending'
-        ACTIVE   = 'active', 'Active'
+        CLAIMED   = 'claimed', 'Claimed'
         RESOLVED = 'resolved', 'Resolved'
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='found_items')

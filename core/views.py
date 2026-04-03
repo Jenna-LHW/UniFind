@@ -13,8 +13,8 @@ from .models import User, Claim
 from django.shortcuts import get_object_or_404
 
 def home_view(request):
-    recent_lost  = LostItem.objects.filter(status__in=['pending', 'active'])[:9]
-    recent_found = FoundItem.objects.filter(status__in=['pending', 'active'])[:9]
+    recent_lost  = LostItem.objects.filter(status__in=['pending', 'found'])[:9]
+    recent_found = FoundItem.objects.filter(status__in=['pending', 'claimed'])[:9]
 
     # Combine and sort by submitted_at, take latest 3
     from itertools import chain
@@ -145,7 +145,7 @@ def report_found_view(request):
     return render(request, 'core/report_found.html', {'form': form, 'user': request.user})
 
 def browse_lost_view(request):
-    items = LostItem.objects.filter(status__in=['pending', 'active'])
+    items = LostItem.objects.filter(status__in=['pending', 'resolved','found'])
     keyword = request.GET.get('q', '')
     category = request.GET.get('category', '')
     date = request.GET.get('date', '')
@@ -170,7 +170,7 @@ def browse_lost_view(request):
     })
 
 def browse_found_view(request):
-    items = FoundItem.objects.filter(status__in=['pending', 'active'])
+    items = FoundItem.objects.filter(status__in=['pending', 'resolved','claimed'])
     keyword = request.GET.get('q', '')
     category = request.GET.get('category', '')
     date = request.GET.get('date', '')

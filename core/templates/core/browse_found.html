@@ -54,10 +54,6 @@
                 <input type="date" name="date" id="date-input" value="{{ selected_date }}">
             </div>
 
-            <button type="submit" class="btn-dark">
-                <i class="fa-solid fa-filter"></i> Filter
-            </button>
-
             {% if keyword or selected_category or selected_date %}
             <a href="{% url 'browse_found' %}" class="btn-clear">
                 <i class="fa-solid fa-xmark"></i> Clear
