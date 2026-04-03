@@ -73,7 +73,15 @@ def logout_view(request):
 
 @login_required(login_url='login')
 def profile_view(request):
-    return render(request, 'core/profile.html', {'user': request.user})
+    lost_items  = request.user.lost_items.all()
+    found_items = request.user.found_items.all()
+    claims      = request.user.claims.select_related('lost_item', 'found_item').all()
+    return render(request, 'core/profile.html', {
+        'user':       request.user,
+        'lost_items':  lost_items,
+        'found_items': found_items,
+        'claims':      claims,
+    })
 
 @login_required(login_url='login')
 def edit_profile_view(request):

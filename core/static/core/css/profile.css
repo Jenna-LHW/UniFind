@@ -135,3 +135,90 @@
     align-items: center;
     gap: 6px;
 }
+
+.profile-activity {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.activity-table-wrapper {
+    overflow-x: auto;
+}
+
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.activity-table th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7a7670;
+    padding: 0 12px 10px 0;
+    border-bottom: 1px solid #f0ece6;
+}
+
+.activity-table td {
+    padding: 12px 12px 12px 0;
+    color: #2c2c2a;
+    border-bottom: 1px solid #f0ece6;
+    vertical-align: top;
+}
+
+.activity-table tr:last-child td {
+    border-bottom: none;
+}
+
+.item-link {
+    color: #5c4f3a;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.item-link:hover { text-decoration: underline; }
+
+.activity-empty {
+    font-size: 14px;
+    color: #7a7670;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.claim-details {
+    color: #7a7670;
+    font-size: 13px;
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-pending  { background: #fef3cd; color: #856404; }
+.status-found    { background: #d1ecf1; color: #0c5460; }
+.status-claimed  { background: #d4edda; color: #155724; }
+.status-resolved { background: #e8e2d9; color: #5c4f3a; }
+.status-returned { background: #d4edda; color: #155724; }
+.status-rejected { background: #f8d7da; color: #721c24; }
+
+/* Type badges (for claims) */
+.type-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.type-lost  { background: #f8d7da; color: #721c24; }
+.type-found { background: #d4edda; color: #155724; }
