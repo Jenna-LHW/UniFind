@@ -80,10 +80,11 @@
 
         <div class="step-card">
             <div class="step-num">4</div>
-            <h3>Request &amp; Recovery</h3>
+            <h3>Submit a Claim</h3>
             <p>
-                Click <strong>"Claim this item"</strong> on a found item, or <strong>"I found this item"</strong>
-                on a lost item to submit a claim with supporting details.
+                Found something that matches? Click <strong>"I found this item"</strong> on a lost post,
+                or <strong>"Claim this item"</strong> on a found post. Provide details to verify your
+                connection to the item.
             </p>
         </div>
 
@@ -91,20 +92,67 @@
             <div class="step-num">5</div>
             <h3>Admin Verification</h3>
             <p>
-                All requests are reviewed by an administrator who verifies the information and
-                determines the legitimacy of each claim.
+                Once a claim is submitted, the item's status updates automatically. The admin then
+                reviews the claim details and either approves or rejects it.
             </p>
         </div>
 
         <div class="step-card">
             <div class="step-num">6</div>
-            <h3>Secure Item Return</h3>
+            <h3>Resolution</h3>
             <p>
-                Once validated, the admin coordinates the handover — ensuring privacy is maintained
-                and ownership is verified before items are returned.
+                If <strong>approved</strong>, the item is marked <strong>Resolved</strong> and the admin
+                coordinates the handover. If <strong>rejected</strong>, the item returns to
+                <strong>Pending</strong> and remains open for other claims.
             </p>
         </div>
 
+    </div>
+</div>
+
+<!-- Item Status Flow -->
+<div class="about-section">
+    <h2><i class="fa-solid fa-arrow-right-arrow-left"></i> Item Status Flow</h2>
+    <div class="steps-grid">
+
+        <div class="step-card">
+            <div class="step-num"><i class="fa-solid fa-clock" style="font-size:11px;"></i></div>
+            <h3>Pending</h3>
+            <p>
+                The default status when an item is first reported is either lost or found.
+                It means no claim has been submitted yet and the item is still unmatched.
+            </p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-num"><i class="fa-solid fa-magnifying-glass" style="font-size:11px;"></i></div>
+            <h3>Found / Claimed</h3>
+            <p>
+                Set automatically when a claim is submitted. A <em>lost</em> item becomes
+                <strong>Found</strong>; a <em>found</em> item becomes <strong>Claimed</strong>.
+                The admin is notified to review the claim.
+            </p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-num"><i class="fa-solid fa-check" style="font-size:11px;"></i></div>
+            <h3>Resolved</h3>
+            <p>
+                Set automatically when the admin approves a claim. The item has been
+                successfully returned to its owner and the case is closed.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Rejected flow note -->
+    <div class="contact-note" style="margin-top:14px;">
+        <i class="fa-solid fa-rotate-left"></i>
+        <p>
+            If a claim is <strong>rejected</strong> by the admin, the item's status reverts
+            to <strong>Pending</strong> automatically keeping it visible and open for
+            new claims from other users.
+        </p>
     </div>
 </div>
 
