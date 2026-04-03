@@ -1,0 +1,215 @@
+/* ── Page header ── */
+.page-header {
+    background: #fff;
+    border: 1px solid #d6d1c8;
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.page-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.page-header-icon img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+}
+
+.page-header-text h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c2c2a;
+    margin-bottom: 4px;
+}
+
+.page-header-text p {
+    font-size: 14px;
+    color: #7a7670;
+    margin: 0;
+}
+
+/* ── Sections ── */
+.about-section {
+    background: #fff;
+    border: 1px solid #d6d1c8;
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+}
+
+.about-section h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #2c2c2a;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.about-section h2 i {
+    color: #5c4f3a;
+    font-size: 16px;
+}
+
+.about-section > p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #5a5752;
+    margin: 0;
+}
+
+/* ── Mission cards ── */
+.mission-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.mission-card {
+    background: #f5f2ee;
+    border: 1px solid #d6d1c8;
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.mission-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: #5c4f3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.mission-icon i {
+    color: #f5f2ee;
+    font-size: 14px;
+}
+
+.mission-card p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #4a4845;
+    margin: 0;
+}
+
+/* ── Steps grid ── */
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.step-card {
+    background: #f5f2ee;
+    border: 1px solid #d6d1c8;
+    border-radius: 10px;
+    padding: 18px;
+}
+
+.step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #5c4f3a;
+    color: #f5f2ee;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.step-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2c2c2a;
+    margin-bottom: 6px;
+}
+
+.step-card p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #5a5752;
+    margin: 0;
+}
+
+.step-card ul {
+    margin: 6px 0 0 16px;
+    padding: 0;
+}
+
+.step-card ul li {
+    font-size: 13px;
+    color: #5a5752;
+    margin-bottom: 3px;
+}
+
+/* ── Contact note ── */
+.contact-note {
+    background: #f5f2ee;
+    border: 1px solid #d6d1c8;
+    border-radius: 10px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.contact-note i {
+    font-size: 22px;
+    color: #5c4f3a;
+    flex-shrink: 0;
+}
+
+.contact-note p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #4a4845;
+    margin: 0;
+}
+
+.contact-note a {
+    color: #5c4f3a;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .mission-grid,
+    .steps-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 580px) {
+    .page-header { padding: 20px; }
+    .page-header-icon img { width: 72px; height: 72px; }
+    .about-section { padding: 20px; }
+
+    .mission-grid,
+    .steps-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-note {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

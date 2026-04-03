@@ -1,0 +1,124 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}About Us — UniFind{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-icon">
+        <img src="{% static 'core/images/logo.png' %}" alt="UniFind Logo">
+    </div>
+    <div class="page-header-text">
+        <h1>About UniFind</h1>
+        <p>Learn about our platform and how it helps the UoM community.</p>
+    </div>
+</div>
+
+<!-- About the Platform -->
+<div class="about-section">
+    <h2><i class="fa-solid fa-layer-group"></i> About the Platform</h2>
+    <p>
+        UniFind is a centralized Lost &amp; Found management system designed for the University of Mauritius community.
+        It provides a structured and reliable way for students and staff to report, search, and recover lost items.
+        By replacing scattered communication methods with a single platform, UniFind ensures that items are properly
+        documented, easy to access, and managed efficiently.
+    </p>
+</div>
+
+<!-- Our Mission -->
+<div class="about-section">
+    <h2><i class="fa-solid fa-bullseye"></i> Our Mission</h2>
+    <div class="mission-grid">
+        <div class="mission-card">
+            <div class="mission-icon"><i class="fa-solid fa-file-pen"></i></div>
+            <p>Simplify the reporting of lost and found items for the entire university community.</p>
+        </div>
+        <div class="mission-card">
+            <div class="mission-icon"><i class="fa-solid fa-handshake"></i></div>
+            <p>Promote honesty and responsibility within the campus community.</p>
+        </div>
+        <div class="mission-card">
+            <div class="mission-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <p>Ensure items are returned securely through a verified, admin-assisted process.</p>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works -->
+<div class="about-section">
+    <h2><i class="fa-solid fa-gears"></i> How It Works</h2>
+    <div class="steps-grid">
+
+        <div class="step-card">
+            <div class="step-num">1</div>
+            <h3>Create an Account</h3>
+            <p>Register and log in to access the platform and manage your reports and recovery requests.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-num">2</div>
+            <h3>Report an Item</h3>
+            <p>Submit a Lost or Found item report with key details:</p>
+            <ul>
+                <li>Item name &amp; description</li>
+                <li>Location found or lost</li>
+                <li>Date &amp; additional notes</li>
+            </ul>
+        </div>
+
+        <div class="step-card">
+            <div class="step-num">3</div>
+            <h3>Search &amp; Browse</h3>
+            <p>Browse all reported items, search by keyword, and filter results to find possible matches.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-num">4</div>
+            <h3>Request &amp; Recovery</h3>
+            <p>
+                Click <strong>"Claim this item"</strong> on a found item, or <strong>"I found this item"</strong>
+                on a lost item to submit a claim with supporting details.
+            </p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-num">5</div>
+            <h3>Admin Verification</h3>
+            <p>
+                All requests are reviewed by an administrator who verifies the information and
+                determines the legitimacy of each claim.
+            </p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-num">6</div>
+            <h3>Secure Item Return</h3>
+            <p>
+                Once validated, the admin coordinates the handover — ensuring privacy is maintained
+                and ownership is verified before items are returned.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<!-- Contact & Support -->
+<div class="about-section">
+    <h2><i class="fa-solid fa-headset"></i> Contact &amp; Support</h2>
+    <div class="contact-note">
+        <i class="fa-solid fa-envelope-open-text"></i>
+        <p>
+            For general inquiries, feedback, or assistance, reach out through the platform's
+            <a href="{% url 'contact' %}">contact page</a>. The administration team will respond
+            and provide support as needed.
+        </p>
+    </div>
+</div>
+
+{% endblock %}

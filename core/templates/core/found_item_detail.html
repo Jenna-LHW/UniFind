@@ -1,0 +1,147 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ item.item_name }} — UniFind{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/browse.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/item_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'home' %}"><i class="fa-solid fa-house"></i> Home</a>
+        <span class="breadcrumb-sep"><i class="fa-solid fa-chevron-right"></i></span>
+        <a href="{% url 'browse_found' %}">Browse Found Items</a>
+        <span class="breadcrumb-sep"><i class="fa-solid fa-chevron-right"></i></span>
+        <span class="breadcrumb-current">{{ item.item_name }}</span>
+    </nav>
+
+    <div class="detail-layout">
+
+        <!-- Left: Photo -->
+        <div class="detail-photo-col">
+            <div class="detail-photo-wrap">
+                {% if item.photo %}
+                    <img src="{{ item.photo.url }}" alt="{{ item.item_name }}" class="detail-photo">
+                {% else %}
+                    <div class="detail-no-photo">
+                        <i class="fa-solid fa-image"></i>
+                        <span>No photo provided</span>
+                    </div>
+                {% endif %}
+                <span class="detail-category-badge" style="background:#3b5c38;">
+                    <i class="fa-solid fa-tag"></i> {{ item.get_category_display }}
+                </span>
+            </div>
+
+            <!-- Status card -->
+            <div class="detail-status-card">
+                <div class="detail-status-row">
+                    <span class="dsr-label">Status</span>
+                    <span class="item-status status-{{ item.status }}">{{ item.get_status_display }}</span>
+                </div>
+                <div class="detail-status-row">
+                    <span class="dsr-label">Reported by</span>
+                    <span class="dsr-value"><i class="fa-solid fa-user"></i> {{ item.user.username }}</span>
+                </div>
+                <div class="detail-status-row">
+                    <span class="dsr-label">Submitted</span>
+                    <span class="dsr-value">{{ item.submitted_at|date:"d M Y, H:i" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Info -->
+        <div class="detail-info-col">
+
+            <div class="detail-header">
+                <h1 class="detail-title">{{ item.item_name }}</h1>
+                <p class="detail-subtitle">Found item report</p>
+            </div>
+
+            <div class="detail-section">
+                <h3 class="detail-section-title"><i class="fa-solid fa-align-left"></i> Description</h3>
+                <p class="detail-description">{{ item.description }}</p>
+            </div>
+
+            <div class="detail-meta-grid">
+                <div class="detail-meta-item">
+                    <div class="dmi-icon" style="background:#eaf3de; color:#3b6d11;">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <div>
+                        <span class="dmi-label">Found at</span>
+                        <span class="dmi-value">{{ item.found_at }}</span>
+                    </div>
+                </div>
+                <div class="detail-meta-item">
+                    <div class="dmi-icon" style="background:#faeeda; color:#854f0b;">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
+                    <div>
+                        <span class="dmi-label">Date found</span>
+                        <span class="dmi-value">{{ item.date_found|date:"l, d F Y" }}</span>
+                    </div>
+                </div>
+                <div class="detail-meta-item">
+                    <div class="dmi-icon" style="background:#e6f1fb; color:#185fa5;">
+                        <i class="fa-solid fa-tag"></i>
+                    </div>
+                    <div>
+                        <span class="dmi-label">Category</span>
+                        <span class="dmi-value">{{ item.get_category_display }}</span>
+                    </div>
+                </div>
+                <div class="detail-meta-item">
+                    <div class="dmi-icon" style="background:#f5f2ee; color:#5c4f3a;">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <span class="dmi-label">Reported by</span>
+                        <span class="dmi-value">{{ item.user.username }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact / Claim section -->
+            {% if item.status != 'resolved' %}
+            <div class="detail-claim-box">
+                <div class="detail-claim-icon">
+                    <i class="fa-solid fa-handshake"></i>
+                </div>
+                <div class="detail-claim-text">
+                    <h4>Is this your item?</h4>
+                    <p>If you believe this is yours, please contact the finder or submit a claim through the contact page.</p>
+                </div>
+                <a href="{% url 'contact' %}" class="btn-dark">
+                    <i class="fa-solid fa-envelope"></i> Contact
+                </a>
+            </div>
+            {% else %}
+            <div class="detail-resolved-box">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>This item has been reunited with its owner.</span>
+            </div>
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="detail-actions">
+                <a href="{% url 'browse_found' %}" class="btn-outline">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Browse
+                </a>
+                {% if user.is_authenticated and user == item.user %}
+                <span class="detail-owner-note">
+                    <i class="fa-solid fa-lock"></i> You reported this item
+                </span>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

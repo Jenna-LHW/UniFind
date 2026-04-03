@@ -19,6 +19,8 @@ urlpatterns = [
     path('review/<int:review_id>/like/', views.like_review_view, name='like_review'),
     path('review/<int:review_id>/reply/', views.admin_reply_view, name='admin_reply'),
     path('review/<int:review_id>/ban/', views.ban_review_view, name='ban_review'),
- 
+    
+    path('about/', views.about, name='about'),
+
     path('contact/', views.contact_view, name='contact'),
 ]

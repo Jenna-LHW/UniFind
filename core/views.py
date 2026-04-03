@@ -83,6 +83,8 @@ def edit_profile_view(request):
         return redirect('profile')
     return render(request, 'core/edit_profile.html', {'form': form})
 
+def about(request):
+    return render(request, 'core/about.html')
 
 def contact_view(request):
     initial_data = {}
@@ -186,6 +188,10 @@ def browse_found_view(request):
         'selected_date': date,
         'categories': FoundItem.Category.choices,
     })
+
+def found_item_detail_view(request, pk):
+    item = get_object_or_404(FoundItem, pk=pk)
+    return render(request, 'core/found_item_detail.html', {'item': item})
 
 def review_view(request):
     reviews     = Review.objects.filter(is_banned=False).select_related('user', 'reply')
