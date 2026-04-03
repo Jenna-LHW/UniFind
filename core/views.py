@@ -10,6 +10,7 @@ from .forms  import ReviewForm, AdminReplyForm
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from .models import User
+from django.shortcuts import get_object_or_404
 
 def home_view(request):
     recent_lost  = LostItem.objects.filter(status__in=['pending', 'active'])[:9]
@@ -125,6 +126,10 @@ def report_lost_view(request):
         return redirect('report_lost')
 
     return render(request, 'core/report_lost.html', {'form': form, 'user': request.user})
+
+def lost_item_detail_view(request, pk):
+    item = get_object_or_404(LostItem, pk=pk)
+    return render(request, 'core/lost_item_detail.html', {'item': item})
 
 @login_required(login_url='login')
 def report_found_view(request):

@@ -15,6 +15,9 @@ urlpatterns = [
     path('browse/lost/', views.browse_lost_view, name='browse_lost'),
     path('browse/found/', views.browse_found_view, name='browse_found'),
 
+    path('browse/found/<int:pk>/', views.found_item_detail_view, name='found_item_detail'),
+    path('browse/lost/<int:pk>/', views.lost_item_detail_view, name='lost_item_detail'),
+
     path('review/', views.review_view, name='review'),
     path('review/<int:review_id>/like/', views.like_review_view, name='like_review'),
     path('review/<int:review_id>/reply/', views.admin_reply_view, name='admin_reply'),

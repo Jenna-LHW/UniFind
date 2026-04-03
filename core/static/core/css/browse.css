@@ -242,3 +242,9 @@
     color: #7a7670;
     margin-bottom: 20px;
 }
+
+a.item-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}

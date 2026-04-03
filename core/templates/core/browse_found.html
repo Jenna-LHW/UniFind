@@ -71,7 +71,7 @@
     {% if items %}
         <div class="items-grid">
             {% for item in items %}
-            <div class="item-card">
+            <a href="{% url 'found_item_detail' item.pk %}" class="item-card item-card-link">
 
                 <!-- Photo -->
                 <div class="item-photo">
@@ -103,8 +103,7 @@
                         <span class="item-user"><i class="fa-solid fa-user"></i> {{ item.user.username }}</span>
                     </div>
                 </div>
-
-            </div>
+            </a>
             {% endfor %}
         </div>
 

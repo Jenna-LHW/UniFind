@@ -10,7 +10,6 @@
 
 {% block content %}
 <div class="detail-container">
-
     <div class="detail-layout">
 
         <!-- Left: Photo -->
@@ -24,7 +23,7 @@
                         <span>No photo provided</span>
                     </div>
                 {% endif %}
-                <span class="detail-category-badge" style="background:#3b5c38;">
+                <span class="detail-category-badge">
                     <i class="fa-solid fa-tag"></i> {{ item.get_category_display }}
                 </span>
             </div>
@@ -51,7 +50,7 @@
 
             <div class="detail-header">
                 <h1 class="detail-title">{{ item.item_name }}</h1>
-                <p class="detail-subtitle">Found item report</p>
+                <p class="detail-subtitle">Lost item report</p>
             </div>
 
             <div class="detail-section">
@@ -65,8 +64,8 @@
                         <i class="fa-solid fa-location-dot"></i>
                     </div>
                     <div>
-                        <span class="dmi-label">Found at</span>
-                        <span class="dmi-value">{{ item.found_at }}</span>
+                        <span class="dmi-label">Last seen at</span>
+                        <span class="dmi-value">{{ item.last_seen }}</span>
                     </div>
                 </div>
                 <div class="detail-meta-item">
@@ -74,8 +73,8 @@
                         <i class="fa-solid fa-calendar-day"></i>
                     </div>
                     <div>
-                        <span class="dmi-label">Date found</span>
-                        <span class="dmi-value">{{ item.date_found|date:"l, d F Y" }}</span>
+                        <span class="dmi-label">Date lost</span>
+                        <span class="dmi-value">{{ item.date_lost|date:"l, d F Y" }}</span>
                     </div>
                 </div>
                 <div class="detail-meta-item">
@@ -98,15 +97,15 @@
                 </div>
             </div>
 
-            <!-- Contact / Claim section -->
+            <!-- Found it / Contact section -->
             {% if item.status != 'resolved' %}
             <div class="detail-claim-box">
                 <div class="detail-claim-icon">
-                    <i class="fa-solid fa-handshake"></i>
+                    <i class="fa-solid fa-magnifying-glass"></i>
                 </div>
                 <div class="detail-claim-text">
-                    <h4>Is this your item?</h4>
-                    <p>If you believe this is yours, please contact the finder or submit a claim through the contact page.</p>
+                    <h4>Did you find this item?</h4>
+                    <p>If you've found this item, please get in touch with the owner through the contact page.</p>
                 </div>
                 <a href="{% url 'contact' %}" class="btn-dark">
                     <i class="fa-solid fa-envelope"></i> Contact
@@ -121,7 +120,7 @@
 
             <!-- Actions -->
             <div class="detail-actions">
-                <a href="{% url 'browse_found' %}" class="btn-outline">
+                <a href="{% url 'browse_lost' %}" class="btn-outline">
                     <i class="fa-solid fa-arrow-left"></i> Back to Browse
                 </a>
                 {% if user.is_authenticated and user == item.user %}
