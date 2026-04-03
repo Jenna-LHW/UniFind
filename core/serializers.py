@@ -7,33 +7,29 @@ User = get_user_model()
 
 # Lost Item Serializer
 class LostItemSerializer(serializers.ModelSerializer):
-    photo = serializers.SerializerMethodField()
+    photo_url = serializers.SerializerMethodField()
 
     class Meta:
         model  = LostItem
         fields = '__all__'
+        read_only_fields = ['user', 'submitted_at', 'status']
 
-    def get_photo(self, obj):
+    def get_photo_url(self, obj):
         if obj.photo:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.photo.url)
             return f'http://127.0.0.1:8000{obj.photo.url}'
         return None
 
 # Found Item Serializer
 class FoundItemSerializer(serializers.ModelSerializer):
-    photo = serializers.SerializerMethodField()
+    photo_url = serializers.SerializerMethodField()
 
     class Meta:
         model  = FoundItem
         fields = '__all__'
+        read_only_fields = ['user', 'submitted_at', 'status']
 
-    def get_photo(self, obj):
+    def get_photo_url(self, obj):
         if obj.photo:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.photo.url)
             return f'http://127.0.0.1:8000{obj.photo.url}'
         return None
 
