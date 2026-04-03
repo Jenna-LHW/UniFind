@@ -54,7 +54,19 @@
                 <input type="date" name="date" id="date-input" value="{{ selected_date }}">
             </div>
 
-            {% if keyword or selected_category or selected_date %}
+            <div class="filter-group">
+                <i class="fa-solid fa-circle-half-stroke filter-icon"></i>
+                <select name="status" id="status-select">
+                    <option value="">All Status</option>
+                    {% for value, label in statuses %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if keyword or selected_category or selected_date or selected_status %}
             <a href="{% url 'browse_found' %}" class="btn-clear">
                 <i class="fa-solid fa-xmark"></i> Clear
             </a>
@@ -127,7 +139,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
 $(document).ready(function () {
-    $('#category-select, #date-input').on('change', function () {
+    $('#category-select, #date-input, #status-select').on('change', function () {
         $('#filter-form').submit();
     });
 });

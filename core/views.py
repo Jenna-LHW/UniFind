@@ -149,6 +149,7 @@ def browse_lost_view(request):
     keyword = request.GET.get('q', '')
     category = request.GET.get('category', '')
     date = request.GET.get('date', '')
+    status = request.GET.get('status', '')
 
     if keyword:
         items = items.filter(item_name__icontains=keyword) | items.filter(description__icontains=keyword)
@@ -161,12 +162,17 @@ def browse_lost_view(request):
         if parsed:
             items = items.filter(date_lost=parsed)
 
+    if status:
+        items = items.filter(status=status)
+
     return render(request, 'core/browse_lost.html', {
         'items': items,
         'keyword': keyword,
         'selected_category': category,
         'selected_date': date,
+        'selected_status': status,
         'categories': LostItem.Category.choices,
+        'statuses': LostItem.Status.choices,
     })
 
 def browse_found_view(request):
@@ -174,6 +180,7 @@ def browse_found_view(request):
     keyword = request.GET.get('q', '')
     category = request.GET.get('category', '')
     date = request.GET.get('date', '')
+    status = request.GET.get('status', '')
 
     if keyword:
         items = items.filter(item_name__icontains=keyword) | items.filter(description__icontains=keyword)
@@ -186,12 +193,17 @@ def browse_found_view(request):
         if parsed:
             items = items.filter(date_found=parsed)
 
+    if status:
+        items = items.filter(status=status)
+
     return render(request, 'core/browse_found.html', {
         'items': items,
         'keyword': keyword,
         'selected_category': category,
         'selected_date': date,
+        'selected_status': status,
         'categories': FoundItem.Category.choices,
+        'statuses': FoundItem.Status.choices,
     })
 
 def found_item_detail_view(request, pk):
