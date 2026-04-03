@@ -14,8 +14,8 @@
 <section class="hero">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-        <h1>Lost Something?<br>Found Something?</h1>
-        <p>Report it now and let the UoM community help you!</p>
+        <h1 id="hero-heading" aria-label="Lost Something? Found Something?"></h1>
+        <p>The UoM community is here to help.<br>Report what you've lost or found and let's get it back where it belongs.</p>
         <div class="hero-btns">
             <a href="{% url 'report_lost' %}" class="hero-btn-outline">Report Lost Item</a>
             <a href="{% url 'report_found' %}" class="hero-btn-outline">Report Found Item</a>
@@ -49,7 +49,7 @@
 <section class="stats-section">
     <div class="stats-grid">
         <div class="stat-item">
-            <span class="stat-number">100+</span>
+            <span class="stat-number">{{ total_reunited }}+</span>
             <span class="stat-label">Items Reunited</span>
         </div>
         <div class="stat-item">
@@ -67,56 +67,114 @@
 <section class="recent-section">
     <h2>Recent Items</h2>
 
-    <div class="recent-grid">
-        {% for item in recent_items %}
-        <div class="recent-card">
+    <div class="recent-carousel-wrapper">
+        <button class="carousel-arrow left" id="carousel-prev" aria-label="Previous">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
 
-            <div class="recent-photo">
-                {% if item.photo %}
-                    <img src="{{ item.photo.url }}" alt="{{ item.item_name }}">
-                {% else %}
-                    <div class="recent-no-photo">
-                        <i class="fa-solid fa-image"></i>
-                    </div>
-                {% endif %}
+        <div class="recent-grid" id="recent-grid">
+            {% for item in recent_items %}
+            <div class="recent-card" data-index="{{ forloop.counter0 }}">
+
+                <div class="recent-photo">
+                    {% if item.photo %}
+                        <img src="{{ item.photo.url }}" alt="{{ item.item_name }}">
+                    {% else %}
+                        <div class="recent-no-photo">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="recent-info">
+                    {% if item.date_found %}
+                        <span class="recent-badge badge-found">Found</span>
+                    {% else %}
+                        <span class="recent-badge badge-lost">Lost</span>
+                    {% endif %}
+
+                    <h4>{{ item.item_name }}</h4>
+
+                    <p class="recent-location">
+                        <i class="fa-solid fa-location-dot"></i>
+                        {% if item.found_at %}{{ item.found_at|truncatechars:30 }}
+                        {% else %}{{ item.last_seen|truncatechars:30 }}{% endif %}
+                        &nbsp;—&nbsp;
+                        {% if item.date_found %}{{ item.date_found|date:"d M Y" }}
+                        {% else %}{{ item.date_lost|date:"d M Y" }}{% endif %}
+                    </p>
+                </div>
+
             </div>
-
-            <div class="recent-info">
-                {% if item.date_found %}
-                    <span class="recent-badge badge-found">Found</span>
-                {% else %}
-                    <span class="recent-badge badge-lost">Lost</span>
-                {% endif %}
-
-                <h4>{{ item.item_name }}</h4>
-
-                <p class="recent-location">
-                    <i class="fa-solid fa-location-dot"></i>
-                    {% if item.found_at %}{{ item.found_at|truncatechars:30 }}
-                    {% else %}{{ item.last_seen|truncatechars:30 }}{% endif %}
-                    &nbsp;—&nbsp;
-                    {% if item.date_found %}{{ item.date_found|date:"d M Y" }}
-                    {% else %}{{ item.date_lost|date:"d M Y" }}{% endif %}
-                </p>
-
-                {% if item.date_found %}
-                    <a href="{% url 'browse_found' %}" class="btn-view">View Details</a>
-                {% else %}
-                    <a href="{% url 'browse_lost' %}" class="btn-view">View Details</a>
-                {% endif %}
+            {% empty %}
+            <div class="no-recent">
+                <p>No items reported yet. <a href="{% url 'report_lost' %}">Be the first!</a></p>
             </div>
+            {% endfor %}
+        </div>
 
-        </div>
-        {% empty %}
-        <div class="no-recent">
-            <p>No items reported yet. <a href="{% url 'report_lost' %}">Be the first!</a></p>
-        </div>
-        {% endfor %}
+        <button class="carousel-arrow right" id="carousel-next" aria-label="Next">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
     </div>
 
-    <div class="view-all">
-        <a href="{% url 'browse_lost' %}" class="btn-dark">View All Items</a>
+    <div class="carousel-dots" id="carousel-dots"></div>
+
+    <div class="btn-view-group">
+        <a href="{% url 'browse_lost' %}" class="btn-view">Browse Lost Items</a>
+        <a href="{% url 'browse_found' %}" class="btn-view">Browse Found Items</a>
     </div>
 </section>
 
+{% block extra_js %}
+<script>
+    const el = document.getElementById('hero-heading');
+    const text = "Lost Something?\nFound Something?";
+    let i = 0;
+
+    function type() {
+        if (i <= text.length) {
+            el.textContent = text.slice(0, i) + (i < text.length ? '|' : '');
+            i++;
+            setTimeout(type, 80);
+        }
+    }
+
+    type();
+
+    const cards = Array.from(document.querySelectorAll('.recent-card'));
+    const dotsContainer = document.getElementById('carousel-dots');
+    const prevBtn = document.getElementById('carousel-prev');
+    const nextBtn = document.getElementById('carousel-next');
+    const pageSize = 3;
+    let currentPage = 0;
+    const totalPages = Math.ceil(cards.length / pageSize);
+
+    // Build dots
+    for (let i = 0; i < totalPages; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', `Page ${i + 1}`);
+        dot.addEventListener('click', () => goToPage(i));
+        dotsContainer.appendChild(dot);
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        cards.forEach((card, i) => {
+            card.classList.toggle('hidden', i < page * pageSize || i >= (page + 1) * pageSize);
+        });
+        document.querySelectorAll('.carousel-dot').forEach((d, i) => {
+            d.classList.toggle('active', i === page);
+        });
+        prevBtn.disabled = page === 0;
+        nextBtn.disabled = page === totalPages - 1;
+    }
+
+    prevBtn.addEventListener('click', () => { if (currentPage > 0) goToPage(currentPage - 1); });
+    nextBtn.addEventListener('click', () => { if (currentPage < totalPages - 1) goToPage(currentPage + 1); });
+
+    goToPage(0);
+</script>
+{% endblock %}
 {% endblock %}

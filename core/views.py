@@ -12,8 +12,8 @@ from django.contrib.auth import get_user_model
 from .models import User
 
 def home_view(request):
-    recent_lost  = LostItem.objects.filter(status__in=['pending', 'active'])[:3]
-    recent_found = FoundItem.objects.filter(status__in=['pending', 'active'])[:3]
+    recent_lost  = LostItem.objects.filter(status__in=['pending', 'active'])[:9]
+    recent_found = FoundItem.objects.filter(status__in=['pending', 'active'])[:9]
 
     # Combine and sort by submitted_at, take latest 3
     from itertools import chain
@@ -22,15 +22,17 @@ def home_view(request):
         chain(recent_lost, recent_found),
         key=attrgetter('submitted_at'),
         reverse=True
-    )[:3]
+    )[:9]
 
     total_users = User.objects.count()
     total_items = LostItem.objects.count() +  FoundItem.objects.count()
+    total_reunited = LostItem.objects.filter(status='resolved').count() + FoundItem.objects.filter(status='resolved').count()
 
     return render(request, 'core/home.html', {
-        'recent_items': recent_items,
-        'total_users':  total_users,
-        'total_items': total_items,
+        'recent_items':    recent_items,
+        'total_users':     total_users,
+        'total_items':     total_items,
+        'total_reunited':  total_reunited,
     })
 
 def register_view(request):
