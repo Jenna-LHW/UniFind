@@ -1,0 +1,138 @@
+/* Container should sit within your .main-content from base.html */
+.claim-section {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 20px;
+}
+
+.claim-card {
+    background: #ffffff;
+    border: 1px solid #d6d1c8; /* Matches your navbar border */
+    border-radius: 8px;
+    width: 100%;
+    max-width: 600px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.claim-card-header {
+    background: #ede9e3; /* Matches your navbar background */
+    padding: 24px;
+    border-bottom: 1px solid #d6d1c8;
+    text-align: center;
+}
+
+.claim-card-header h2 {
+    color: #2c2c2a;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.claim-card-body {
+    padding: 32px;
+}
+
+/* Item Summary Box - Styled like your messages or profile sections */
+.item-summary-box {
+    background: #fcfaf7;
+    border: 1px dashed #cdc8bf;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.item-summary-box label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #7a7670;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.item-summary-box p {
+    font-size: 15px;
+    color: #2c2c2a;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.item-summary-box p:last-child {
+    margin-bottom: 0;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #3d3d3a;
+    margin-bottom: 8px;
+}
+
+.form-input-text {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d6d1c8;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #2c2c2a;
+    background: #fff;
+    transition: border-color 0.2s;
+}
+
+.form-input-text:focus {
+    outline: none;
+    border-color: #5c4f3a;
+}
+
+/* Button Group - Matching your .btn-dark and nav-links */
+.claim-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 32px;
+}
+
+.btn-submit {
+    background: #5c4f3a; /* Your primary button color */
+    color: #f5f2ee;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-submit:hover {
+    background: #4a3f2e;
+}
+
+.link-back {
+    font-size: 14px;
+    color: #7a7670;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.link-back:hover {
+    color: #2c2c2a;
+}
+
+.claim-footer-hint {
+    background: #f8f6f2;
+    padding: 16px;
+    text-align: center;
+    font-size: 12px;
+    color: #7a7670;
+    border-top: 1px solid #ede9e3;
+}

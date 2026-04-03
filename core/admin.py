@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import User, ContactMessage, LostItem, FoundItem
-from .models import Review, ReviewReply, ReviewLike
+from .models import Review, ReviewReply, ReviewLike, Claim
+
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -61,3 +62,19 @@ class ReviewReplyAdmin(admin.ModelAdmin):
 class ReviewLikeAdmin(admin.ModelAdmin):
     list_display  = ['user', 'review']
     readonly_fields = ['user', 'review']
+
+@admin.action(description='Verify and Mark as Returned')
+def mark_returned(modeladmin, request, queryset):
+    queryset.update(status='returned')
+    # Note: The browse views are filtered to exclude items with 'returned' claims
+    
+@admin.register(Claim)
+class ClaimAdmin(admin.ModelAdmin):
+    list_display = ['claimer', 'get_item_name', 'status', 'created_at']
+    list_filter = ['status']
+    actions = [mark_returned]
+
+    def get_item_name(self, obj):
+        item = obj.lost_item or obj.found_item
+        return item.item_name
+    get_item_name.short_description = 'Item'

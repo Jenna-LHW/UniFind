@@ -9,7 +9,7 @@ from .models import Review, ReviewReply, ReviewLike
 from .forms  import ReviewForm, AdminReplyForm
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
-from .models import User
+from .models import User, Claim
 from django.shortcuts import get_object_or_404
 
 def home_view(request):
@@ -298,6 +298,27 @@ def ban_review_view(request, review_id):
         msg = "Review banned." if review.is_banned else "Review unbanned."
         messages.success(request, msg)
         return redirect('review')
+
+@login_required
+def submit_claim_view(request, item_type, pk):
+    if item_type == 'lost':
+        item = get_object_or_404(LostItem, pk=pk)
+        kwargs = {'lost_item': item}
+    else:
+        item = get_object_or_404(FoundItem, pk=pk)
+        kwargs = {'found_item': item}
+
+    if request.method == 'POST':
+        details = request.POST.get('details')
+        Claim.objects.create(
+            claimer=request.user,
+            details=details,
+            **kwargs
+        )
+        messages.success(request, "Your claim has been submitted and is awaiting admin review.")
+        return redirect('home')
+    
+    return render(request, 'core/submit_claim.html', {'item': item})
 
 # API views
 from rest_framework import viewsets, generics

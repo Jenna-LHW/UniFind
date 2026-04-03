@@ -107,8 +107,8 @@
                     <h4>Did you find this item?</h4>
                     <p>If you've found this item, please get in touch with the owner through the contact page.</p>
                 </div>
-                <a href="{% url 'contact' %}" class="btn-dark">
-                    <i class="fa-solid fa-envelope"></i> Contact
+                <a href="{% url 'submit_claim' 'found' item.pk %}" class="btn btn-primary">
+                    I found this item
                 </a>
             </div>
             {% else %}

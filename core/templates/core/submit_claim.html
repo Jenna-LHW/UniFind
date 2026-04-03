@@ -1,0 +1,57 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Claim Item | UniFind{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/submit_claim.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="claim-section">
+    <div class="claim-card">
+        <div class="claim-card-header">
+            <h2>Request & Recovery</h2>
+        </div>
+
+        <div class="claim-card-body">
+            <div class="item-summary-box">
+                <label>Item Name</label>
+                <p>{{ item.item_name }}</p>
+                
+                <label>Location Info</label>
+                <p>{% if item.last_seen %}{{ item.last_seen }}{% else %}{{ item.found_at }}{% endif %}</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="details">Supporting Details</label>
+                    <textarea 
+                        name="details" 
+                        id="details" 
+                        class="form-input-text" 
+                        rows="6" 
+                        placeholder="Provide details to verify ownership (e.g., specific marks, contents, or precise time/location)." 
+                        required></textarea>
+                </div>
+
+                <div class="claim-actions">
+                    <a href="javascript:history.back()" class="link-back">
+                        <i class="fas fa-chevron-left" style="font-size: 10px;"></i> Back to Browse
+                    </a>
+                    <button type="submit" class="btn-submit">
+                        Submit Claim Request
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="claim-footer-hint">
+            <i class="fas fa-lock" style="margin-right: 5px;"></i> 
+            Privacy Maintained • Verified by Admin
+        </div>
+    </div>
+</div>
+{% endblock %}

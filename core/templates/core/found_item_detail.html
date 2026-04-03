@@ -108,8 +108,8 @@
                     <h4>Is this your item?</h4>
                     <p>If you believe this is yours, please contact the finder or submit a claim through the contact page.</p>
                 </div>
-                <a href="{% url 'contact' %}" class="btn-dark">
-                    <i class="fa-solid fa-envelope"></i> Contact
+                <a href="{% url 'submit_claim' 'found' item.pk %}" class="btn btn-primary">
+                    Claim this item
                 </a>
             </div>
             {% else %}

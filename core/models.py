@@ -132,3 +132,23 @@ class ReviewLike(models.Model):
 
     def __str__(self):
         return f"{self.user.username} likes review {self.review.id}"
+
+class Claim(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('returned', 'Returned'),
+        ('rejected', 'Rejected'),
+    ]
+
+    claimer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='claims')
+    # Link to either a lost or found item
+    lost_item = models.ForeignKey('LostItem', on_delete=models.CASCADE, null=True, blank=True)
+    found_item = models.ForeignKey('FoundItem', on_delete=models.CASCADE, null=True, blank=True)
+    
+    details = models.TextField(help_text="Provide details to verify ownership or discovery.")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        item = self.lost_item or self.found_item
+        return f"Claim by {self.claimer.username} for {item.item_name}"
