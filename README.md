@@ -17,11 +17,11 @@
 - [Inspiration](#inspiration)
 
 ## Overview
-
 **UniFind** is a full-stack Lost & Found management system designed to help UoM students and staff report, search, and recover lost or found items efficiently.
 
-The system provides a **RESTful API** built with Django REST Framework, allowing seamless integration with web or mobile frontends.
+The platform introduces a structured, admin-assisted recovery process, ensuring secure and verified item claims between users.
 
+The system provides a RESTful API built with Django REST Framework, enabling easy integration with web or mobile applications.
 ## Screenshots
 
 ### Home Page
@@ -36,6 +36,9 @@ The system provides a **RESTful API** built with Django REST Framework, allowing
 
 ![Found Items](screenshots/found-items.png)
 
+### Item Details Page
+![Item Details](screenshots/item-detail.png)
+
 ### Report Item Form
 
 ![Report Item](screenshots/report-item.png)
@@ -43,6 +46,18 @@ The system provides a **RESTful API** built with Django REST Framework, allowing
 ### Review Page
 
 ![Review Page](screenshots/review.png)
+
+### Contact Page
+
+![Contact Page](screenshots/contact.png)
+
+### Profile Page
+
+![Profile Page](screenshots/profile.png)
+
+### Admin Page
+
+![Admin Page](screenshots/admin.png)
 
 ## Features
 
@@ -52,13 +67,26 @@ The system provides a **RESTful API** built with Django REST Framework, allowing
 * Report **lost items**
 * Report **found items**
 * Browse all lost and found items
-* Contact system
+* Submit item recovery requests
+* Contact system for support
 * Leave reviews and feedback
+
+## Request & Recovery Flow
+* Users can interact directly with items:
+  * Lost item → “I found this item”
+  * Found item → “Claim this item”
+* Requests are linked to specific items
+* Users must provide supporting details when submitting a request
+* Admin acts as an intermediary between both parties
+* Ensures safe and verified item recovery 
 
 ### Admin Features
 
 * Manage lost & found listings
-* Respond to user messages
+* Review and verify recovery requests
+* Approve or reject claims
+* Act as a middleman between users
+* Respond to contact messages
 * Moderate reviews and replies
 
 ### API Features
