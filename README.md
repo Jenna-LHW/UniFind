@@ -1,7 +1,9 @@
 # UniFind – Lost & Found Management System
+
 ## Table of Contents
 
 - [Overview](#overview)
+- [Demo](#demo)
 - [Screenshots](#screenshots)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
@@ -22,6 +24,11 @@
 The platform introduces a structured, admin-assisted recovery process, ensuring secure and verified item claims between users.
 
 The system provides a RESTful API built with Django REST Framework, enabling easy integration with web or mobile applications.
+
+## Demo
+
+[![Watch the demo](https://img.youtube.com/vi/TUS9zCClP84/0.jpg)](https://www.youtube.com/watch?v=TUS9zCClP84)
+
 ## Screenshots
 
 ### Home Page
