@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from .models import LostItem, FoundItem, ContactMessage, Review, ReviewReply
+from .models import LostItem, FoundItem, ContactMessage, Review, ReviewReply, Claim
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
 
 User = get_user_model()
 
@@ -50,6 +49,46 @@ class ReviewReplySerializer(serializers.ModelSerializer):
     class Meta:
         model = ReviewReply
         fields = '__all__'
+
+# Claim Serializer
+class ClaimSerializer(serializers.ModelSerializer):
+    claimer_username = serializers.ReadOnlyField(source='claimer.username')
+    item_name = serializers.SerializerMethodField()
+    item_type = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Claim
+        fields = [
+            'id', 'claimer', 'claimer_username',
+            'lost_item', 'found_item',
+            'item_name', 'item_type',
+            'details', 'status', 'created_at',
+        ]
+        read_only_fields = ['claimer', 'status', 'created_at']
+
+    def get_item_name(self, obj):
+        item = obj.lost_item or obj.found_item
+        return item.item_name if item else None
+
+    def get_item_type(self, obj):
+        if obj.lost_item:
+            return 'lost'
+        if obj.found_item:
+            return 'found'
+        return None
+
+    def validate(self, data):
+        lost  = data.get('lost_item')
+        found = data.get('found_item')
+        if not lost and not found:
+            raise serializers.ValidationError(
+                "A claim must reference either a lost_item or a found_item."
+            )
+        if lost and found:
+            raise serializers.ValidationError(
+                "A claim cannot reference both a lost_item and a found_item."
+            )
+        return data
 
 # Auth Serializer
 class RegisterSerializer(serializers.ModelSerializer):

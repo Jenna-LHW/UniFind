@@ -25,7 +25,8 @@ from core.views import (
     FoundItemViewSet,
     ContactMessageViewSet,
     ReviewViewSet,
-    ReviewReplyViewSet
+    ReviewReplyViewSet,
+    ClaimViewSet
 )
 
 from rest_framework_simplejwt.views import (
@@ -40,6 +41,7 @@ router.register(r'found-items', FoundItemViewSet)
 router.register(r'contacts', ContactMessageViewSet)
 router.register(r'reviews', ReviewViewSet)
 router.register(r'review-replies', ReviewReplyViewSet)
+router.register(r'claims', ClaimViewSet, basename='claim')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
