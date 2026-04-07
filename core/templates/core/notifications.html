@@ -1,0 +1,137 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Notifications — UniFind{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/notifications.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="notif-page">
+
+    <div class="notif-page-header">
+        <h1><i class="fa-solid fa-bell"></i> Notifications</h1>
+        {% if notifications %}
+        <form method="post" action="{% url 'notifications_mark_all_read' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-mark-all">
+                <i class="fa-solid fa-check-double"></i> Mark all as read
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    {% if notifications %}
+    <ul class="notif-list">
+        {% for n in notifications %}
+        <li class="notif-item {% if not n.is_read %}unread{% endif %}" id="notif-{{ n.id }}">
+
+            <div class="notif-icon-col">
+                {% if not n.is_read %}
+                    <span class="notif-dot"></span>
+                {% else %}
+                    <span class="notif-dot read"></span>
+                {% endif %}
+            </div>
+
+            <div class="notif-body-col">
+                <p class="notif-title">{{ n.title }}</p>
+                <p class="notif-body">{{ n.body }}</p>
+                <p class="notif-time">
+                    <i class="fa-regular fa-clock"></i>
+                    {{ n.created_at|timesince }} ago
+                </p>
+            </div>
+
+            <div class="notif-action-col">
+                {% if n.item_type and n.item_id %}
+                    {% if n.item_type == 'lost' %}
+                        <a href="{% url 'lost_item_detail' n.item_id %}"
+                           class="notif-view-btn"
+                           data-id="{{ n.id }}">View Item</a>
+                    {% elif n.item_type == 'found' %}
+                        <a href="{% url 'found_item_detail' n.item_id %}"
+                           class="notif-view-btn"
+                           data-id="{{ n.id }}">View Item</a>
+                    {% endif %}
+                {% endif %}
+
+                {% if not n.is_read %}
+                <button class="notif-read-btn"
+                        data-id="{{ n.id }}"
+                        title="Mark as read">
+                    <i class="fa-solid fa-check"></i>
+                </button>
+                {% endif %}
+            </div>
+
+        </li>
+        {% endfor %}
+    </ul>
+
+    {% else %}
+    <div class="notif-empty">
+        <i class="fa-regular fa-bell-slash"></i>
+        <p>You have no notifications yet.</p>
+        <p class="notif-empty-sub">When someone claims one of your items, you'll be notified here.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CSRF = document.cookie.match(/csrftoken=([^;]+)/)?.[1] ?? '';
+
+// Mark single notification as read via AJAX
+document.querySelectorAll('.notif-read-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const id  = this.dataset.id;
+        const row = document.getElementById('notif-' + id);
+
+        fetch(`/notifications/${id}/mark-read/`, {
+            method:  'POST',
+            headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' },
+        }).then(r => r.json()).then(data => {
+            if (data.ok) {
+                row.classList.remove('unread');
+                row.querySelector('.notif-dot')?.classList.add('read');
+                this.remove();
+                updateBadge(-1);
+            }
+        });
+    });
+});
+
+// Mark-as-read when clicking "View Item" link
+document.querySelectorAll('.notif-view-btn').forEach(link => {
+    link.addEventListener('click', function () {
+        const id  = this.dataset.id;
+        const row = document.getElementById('notif-' + id);
+        if (row && row.classList.contains('unread')) {
+            fetch(`/notifications/${id}/mark-read/`, {
+                method:  'POST',
+                headers: { 'X-CSRFToken': CSRF },
+            }).then(r => r.json()).then(data => {
+                if (data.ok) {
+                    row.classList.remove('unread');
+                    row.querySelector('.notif-dot')?.classList.add('read');
+                    row.querySelector('.notif-read-btn')?.remove();
+                    updateBadge(-1);
+                }
+            });
+        }
+    });
+});
+
+function updateBadge(delta) {
+    const badge = document.querySelector('.notif-badge');
+    if (!badge) return;
+    let count = parseInt(badge.textContent || '0') + delta;
+    if (count <= 0) { badge.style.display = 'none'; }
+    else { badge.textContent = count; badge.style.display = ''; }
+}
+</script>
+{% endblock %}

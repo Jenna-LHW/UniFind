@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from .models import User, Claim
 from django.shortcuts import get_object_or_404
+from .models import Notification
 
 # Template views
 
@@ -326,6 +327,43 @@ def submit_claim_view(request, item_type, pk):
     # Pass 'item' to the template so it displays the correct name
     return render(request, 'core/submit_claim.html', {'item': item})
 
+@login_required(login_url='login')
+def notifications_view(request):
+    notifications = Notification.objects.filter(recipient=request.user)
+    return render(request, 'core/notifications.html', {
+        'notifications': notifications,
+    })
+ 
+ 
+# ── AJAX: mark a single notification as read ────────────────────────────────
+@login_required(login_url='login')
+def notification_mark_read_view(request, pk):
+    """POST /notifications/<pk>/mark-read/  →  {ok: true}"""
+    if request.method == 'POST':
+        Notification.objects.filter(
+            pk=pk, recipient=request.user
+        ).update(is_read=True)
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False}, status=405)
+ 
+ 
+# ── AJAX / form POST: mark ALL notifications as read ────────────────────────
+@login_required(login_url='login')
+def notifications_mark_all_read_view(request):
+    """POST /notifications/mark-all-read/  →  {ok: true}"""
+    if request.method == 'POST':
+        Notification.objects.filter(
+            recipient=request.user, is_read=False
+        ).update(is_read=True)
+        # Support both AJAX (fetch) and plain form POST
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' \
+                or 'application/json' in request.headers.get('Content-Type', '') \
+                or request.headers.get('Accept', '').startswith('application/json'):
+            return JsonResponse({'ok': True})
+        # Plain form POST fallback (from the notifications page button)
+        return redirect('notifications')
+    return JsonResponse({'ok': False}, status=405)
+
 # API views
 
 from rest_framework import viewsets, generics, status
@@ -339,6 +377,8 @@ from .serializers import (
     ReviewReplySerializer, RegisterSerializer,
     ClaimSerializer,
 )
+from .models import Notification
+from .serializers import NotificationSerializer
 
 User = get_user_model()
 
@@ -350,10 +390,19 @@ class LostItemViewSet(viewsets.ModelViewSet):
     update: PUT  /api/lost-items/<pk>/
     partial_update: PATCH /api/lost-items/<pk>/
     destroy: DELETE /api/lost-items/<pk>/
+    Filter to current user's items:
+        GET /api/lost-items/?mine=true
     """
-    queryset           = LostItem.objects.all()
-    serializer_class   = LostItemSerializer
+    queryset = LostItem.objects.all()
+    serializer_class = LostItemSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        # ?mine=true  →  only the authenticated user's items
+        if self.request.query_params.get('mine') == 'true':
+            qs = qs.filter(user=self.request.user)
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -366,10 +415,18 @@ class FoundItemViewSet(viewsets.ModelViewSet):
     update: PUT  /api/found-items/<pk>/
     partial_update: PATCH /api/found-items/<pk>/
     destroy: DELETE /api/found-items/<pk>/
+    Filter to current user's items:
+        GET /api/found-items/?mine=true
     """
-    queryset           = FoundItem.objects.all()
-    serializer_class   = FoundItemSerializer
+    queryset = FoundItem.objects.all()
+    serializer_class = FoundItemSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.query_params.get('mine') == 'true':
+            qs = qs.filter(user=self.request.user)
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -465,3 +522,20 @@ class UserView(APIView):
             "student_id":  request.user.student_id,
             "date_joined": request.user.date_joined,
         })
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    """
+    list:           GET   /api/notifications/          — own unread + recent
+    retrieve:       GET   /api/notifications/<pk>/
+    partial_update: PATCH /api/notifications/<pk>/     — mark as read
+    """
+    serializer_class   = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipient=self.request.user)
+
+    @action(detail=False, methods=['post'], url_path='mark-all-read')
+    def mark_all_read(self, request):
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+        return Response({'status': 'ok'})

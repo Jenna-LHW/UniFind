@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import User, ContactMessage, LostItem, FoundItem
-from .models import Review, ReviewReply, ReviewLike, Claim
+from .models import Review, ReviewReply, ReviewLike, Claim, Notification
 
 
 @admin.register(User)
@@ -85,3 +85,15 @@ class ClaimAdmin(admin.ModelAdmin):
         item = obj.lost_item or obj.found_item
         return item.item_name
     get_item_name.short_description = 'Item'
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ['recipient', 'title', 'item_type', 'is_read', 'created_at']
+    list_filter = ['is_read', 'item_type', 'created_at']
+    search_fields = ['recipient__username', 'title', 'body']
+    readonly_fields = ['recipient', 'title', 'body', 'item_type', 'item_id', 'created_at']
+    ordering = ['-created_at']
+
+    # Prevent admins from manually creating notifications from the dashboard
+    def has_add_permission(self, request):
+        return False

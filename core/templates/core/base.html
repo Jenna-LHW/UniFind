@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}UniFind — UoM Lost & Found{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/notifications.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     {% block extra_css %}{% endblock %}
 </head>
@@ -56,6 +57,57 @@
                     <div class="nav-user-dropdown">
                         <a href="{% url 'profile' %}" class="btn-user">{{ user.username }}</a>
                     </div>
+
+                    <!-- ── Notification Bell ── -->
+                    <div class="notif-bell-wrap" id="notif-bell-wrap">
+                        <a href="{% url 'notifications' %}"
+                           class="notif-bell-btn"
+                           id="notif-bell-btn"
+                           aria-label="Notifications">
+                            <i class="fa-solid fa-bell"></i>
+                            {% if unread_notif_count > 0 %}
+                            <span class="notif-badge" id="notif-badge">{{ unread_notif_count }}</span>
+                            {% else %}
+                            <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+                            {% endif %}
+                        </a>
+
+                        <!-- Dropdown panel (toggle via JS) -->
+                        <div class="notif-dropdown" id="notif-dropdown">
+                            <div class="notif-dropdown-header">
+                                <span>Notifications</span>
+                                {% if unread_notif_count > 0 %}
+                                <a href="#" id="nd-mark-all">Mark all as read</a>
+                                {% endif %}
+                            </div>
+
+                            <div class="notif-dropdown-list" id="nd-list">
+                                {% if recent_notifications %}
+                                    {% for n in recent_notifications %}
+                                    <div class="notif-dropdown-item {% if not n.is_read %}unread{% endif %}"
+                                         data-id="{{ n.id }}">
+                                        <span class="nd-dot {% if n.is_read %}read{% endif %}"></span>
+                                        <div class="nd-body">
+                                            <p class="nd-title">{{ n.title }}</p>
+                                            <p class="nd-snippet">{{ n.body|truncatechars:55 }}</p>
+                                        </div>
+                                        <span class="nd-time">{{ n.created_at|timesince|slice:":8" }}</span>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="notif-dropdown-empty">
+                                        <i class="fa-regular fa-bell-slash"></i>
+                                        No notifications yet
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="notif-dropdown-footer">
+                                <a href="{% url 'notifications' %}">View all notifications</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ── End Bell ── -->
                 {% else %}
                     <a href="{% url 'register' %}" class="btn-dark">Register</a>
                     <a href="{% url 'login' %}" class="btn-dark">Login</a>
@@ -134,34 +186,72 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Toggle dropdown on click
-           $('#report-toggle').on('click', function (e) {
+            // ── Nav dropdowns ──
+            $('#report-toggle').on('click', function (e) {
                 e.preventDefault();
                 $('#report-menu').slideToggle(200);
                 $('#browse-menu').slideUp(200);
             });
 
-            // Close dropdown when clicking anywhere else
-            $(document).on('click', function (e) {
-                if (!$(e.target).closest('.nav-dropdown').length) {
-                    $('#report-menu').slideUp(200);
-                }
-            });
-
-            // Browse dropdown
             $('#browse-toggle').on('click', function (e) {
                 e.preventDefault();
                 $('#browse-menu').slideToggle(200);
                 $('#report-menu').slideUp(200);
             });
 
-            // Also close browse when clicking outside
             $(document).on('click', function (e) {
                 if (!$(e.target).closest('.nav-dropdown').length) {
                     $('#report-menu').slideUp(200);
                     $('#browse-menu').slideUp(200);
                 }
             });
+
+            // ── Notification bell dropdown (click-toggle) ──
+            {% if user.is_authenticated %}
+            const bell        = document.getElementById('notif-bell-btn');
+            const dropdown    = document.getElementById('notif-dropdown');
+            const bellWrap    = document.getElementById('notif-bell-wrap');
+            const CSRF        = document.cookie.match(/csrftoken=([^;]+)/)?.[1] ?? '';
+
+            if (bell && dropdown) {
+                bell.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    dropdown.classList.toggle('open');
+                });
+
+                // Close when clicking outside the bell area
+                document.addEventListener('click', function (e) {
+                    if (!bellWrap.contains(e.target)) {
+                        dropdown.classList.remove('open');
+                    }
+                });
+            }
+
+            // Mark all read from dropdown header link
+            const markAllBtn = document.getElementById('nd-mark-all');
+            if (markAllBtn) {
+                markAllBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    fetch('/notifications/mark-all-read/', {
+                        method:  'POST',
+                        headers: { 'X-CSRFToken': CSRF },
+                    }).then(r => r.json()).then(data => {
+                        if (data.ok) {
+                            // Clear all unread styling in dropdown
+                            document.querySelectorAll('.notif-dropdown-item.unread').forEach(el => {
+                                el.classList.remove('unread');
+                                el.querySelector('.nd-dot')?.classList.add('read');
+                            });
+                            // Hide badge
+                            const badge = document.getElementById('notif-badge');
+                            if (badge) badge.style.display = 'none';
+                            // Hide the link itself
+                            markAllBtn.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            {% endif %}
         });
     </script>
 </body>

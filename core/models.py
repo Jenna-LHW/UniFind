@@ -150,8 +150,9 @@ class Claim(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
+        is_new = self._state.adding          # True only on first save
         super().save(*args, **kwargs)
-        
+
         item = self.lost_item or self.found_item
 
         if self.lost_item:
@@ -161,7 +162,6 @@ class Claim(models.Model):
                 item.status = 'resolved'
             elif self.status == 'rejected':
                 item.status = 'pending'
-
         elif self.found_item:
             if self.status == 'pending':
                 item.status = 'claimed'
@@ -169,9 +169,38 @@ class Claim(models.Model):
                 item.status = 'resolved'
             elif self.status == 'rejected':
                 item.status = 'pending'
-
         item.save()
+
+        # ── Fire notification to item owner on new claim ──
+        if is_new:
+            item_type = 'lost' if self.lost_item else 'found'
+            Notification.objects.create(
+                recipient  = item.user,
+                title      = f"New claim on your {item_type} item",
+                body       = (
+                    f"{self.claimer.username} submitted a claim on "
+                    f'"{item.item_name}". Details: {self.details[:80]}'
+                ),
+                item_type  = item_type,
+                item_id    = item.pk,
+            )
 
     def __str__(self):
         item = self.lost_item or self.found_item
         return f"Claim by {self.claimer.username} for {item.item_name}"
+
+class Notification(models.Model):
+    recipient   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    title       = models.CharField(max_length=150)
+    body        = models.TextField()
+    is_read     = models.BooleanField(default=False)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    # optional deep-link info
+    item_type   = models.CharField(max_length=10, blank=True)  # 'lost' | 'found'
+    item_id     = models.PositiveIntegerField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"→ {self.recipient.username}: {self.title}"

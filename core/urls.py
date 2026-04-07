@@ -1,5 +1,10 @@
 from django.urls import path
 from . import views
+from core.views import (
+    notifications_view,
+    notification_mark_read_view,
+    notifications_mark_all_read_view,
+)
 
 urlpatterns = [
     path('', views.home_view, name='home'),
@@ -28,4 +33,8 @@ urlpatterns = [
     path('about/', views.about, name='about'),
 
     path('contact/', views.contact_view, name='contact'),
+
+    path('notifications/', notifications_view, name='notifications'),
+    path('notifications/mark-all-read/', notifications_mark_all_read_view, name='notifications_mark_all_read'),
+    path('notifications/<int:pk>/mark-read/', notification_mark_read_view, name='notification_mark_read'),
 ]
