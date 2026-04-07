@@ -14,5 +14,3 @@ db.sqlite3
 
 # Static files (collected)
 staticfiles/
-
-/media/
