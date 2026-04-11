@@ -495,6 +495,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated], url_path='like')
+    def like(self, request, pk=None):
+        review = self.get_object()
+        like, created = ReviewLike.objects.get_or_create(user=request.user, review=review)
+        if not created:
+            like.delete()
+            liked = False
+        else:
+            liked = True
+        return Response({'liked': liked, 'total_likes': review.total_likes()})
+
 
 class ReviewReplyViewSet(viewsets.ModelViewSet):
     queryset         = ReviewReply.objects.all()
@@ -521,6 +532,28 @@ class UserView(APIView):
             "phone":       request.user.phone,
             "student_id":  request.user.student_id,
             "date_joined": request.user.date_joined,
+        })
+
+    def patch(self, request):
+        user = request.user
+        allowed_fields = ['first_name', 'last_name', 'email', 'phone', 'student_id']
+        for field in allowed_fields:
+            if field in request.data:
+                setattr(user, field, request.data[field])
+        # Handle password change separately
+        if 'password' in request.data and request.data['password']:
+            user.set_password(request.data['password'])
+        user.save()
+        return Response({
+            "id":          user.id,
+            "username":    user.username,
+            "email":       user.email,
+            "first_name":  user.first_name,
+            "last_name":   user.last_name,
+            "role":        user.role,
+            "phone":       user.phone,
+            "student_id":  user.student_id,
+            "date_joined": user.date_joined,
         })
 
 class NotificationViewSet(viewsets.ModelViewSet):

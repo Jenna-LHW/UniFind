@@ -6,7 +6,8 @@ User = get_user_model()
 
 # Lost Item Serializer
 class LostItemSerializer(serializers.ModelSerializer):
-    photo_url = serializers.SerializerMethodField()
+    photo_url   = serializers.SerializerMethodField()
+    reported_by = serializers.ReadOnlyField(source='user.username')
 
     class Meta:
         model  = LostItem
@@ -20,7 +21,8 @@ class LostItemSerializer(serializers.ModelSerializer):
 
 # Found Item Serializer
 class FoundItemSerializer(serializers.ModelSerializer):
-    photo_url = serializers.SerializerMethodField()
+    photo_url   = serializers.SerializerMethodField()
+    reported_by = serializers.ReadOnlyField(source='user.username')
 
     class Meta:
         model  = FoundItem
@@ -38,17 +40,25 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         model = ContactMessage
         fields = '__all__'
 
-# Review Serializer
-class ReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = '__all__'
 
 # Review Reply Serializer
 class ReviewReplySerializer(serializers.ModelSerializer):
     class Meta:
         model = ReviewReply
         fields = '__all__'
+        
+# Review Serializer
+class ReviewSerializer(serializers.ModelSerializer):
+    username    = serializers.ReadOnlyField(source='user.username')
+    total_likes = serializers.SerializerMethodField()
+    reply       = ReviewReplySerializer(read_only=True)
+
+    class Meta:
+        model  = Review
+        fields = '__all__'
+
+    def get_total_likes(self, obj):
+        return obj.total_likes()
 
 # Claim Serializer
 class ClaimSerializer(serializers.ModelSerializer):
