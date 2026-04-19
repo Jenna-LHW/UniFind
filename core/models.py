@@ -190,17 +190,97 @@ class Claim(models.Model):
         return f"Claim by {self.claimer.username} for {item.item_name}"
 
 class Notification(models.Model):
+    class NotifType(models.TextChoices):
+        CLAIM = 'claim', 'Claim'
+        MATCH = 'match', 'Potential Match'
+        OTHER = 'other', 'Other'
+
     recipient   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     title       = models.CharField(max_length=150)
     body        = models.TextField()
     is_read     = models.BooleanField(default=False)
     created_at  = models.DateTimeField(auto_now_add=True)
     # optional deep-link info
-    item_type   = models.CharField(max_length=10, blank=True)  # 'lost' | 'found'
-    item_id     = models.PositiveIntegerField(null=True, blank=True)
+    item_type         = models.CharField(max_length=10, blank=True)  # 'lost' | 'found'
+    item_id           = models.PositiveIntegerField(null=True, blank=True)
+    notification_type = models.CharField(
+        max_length=10,
+        choices=NotifType.choices,
+        default=NotifType.OTHER,
+    )
 
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
         return f"→ {self.recipient.username}: {self.title}"
+
+
+#  Potential-match notification helper 
+def _location_overlap(loc_a: str, loc_b: str) -> bool:
+    STOP = {'at', 'the', 'a', 'in', 'on', 'near', 'by', 'of', 'and', 'or'}
+    words_a = {w.lower() for w in loc_a.split() if len(w) > 2 and w.lower() not in STOP}
+    words_b = {w.lower() for w in loc_b.split() if len(w) > 2 and w.lower() not in STOP}
+    return bool(words_a & words_b)
+
+
+def fire_match_notifications(new_item, new_item_type: str):
+    if new_item_type == 'lost':
+        new_location = new_item.last_seen
+        candidates   = FoundItem.objects.filter(
+            status__in=['pending', 'claimed']
+        ).exclude(user=new_item.user)
+        candidate_type = 'found'
+    else:
+        new_location = new_item.found_at
+        candidates   = LostItem.objects.filter(
+            status__in=['pending', 'found']
+        ).exclude(user=new_item.user)
+        candidate_type = 'lost'
+
+    new_name_words = {
+        w.lower() for w in new_item.item_name.split() if len(w) >= 3
+    }
+
+    for old_item in candidates:
+        old_location = old_item.found_at if candidate_type == 'found' else old_item.last_seen
+        old_name_words = {
+            w.lower() for w in old_item.item_name.split() if len(w) >= 3
+        }
+
+        # Must share location AND (category OR name word)
+        if not _location_overlap(new_location, old_location):
+            continue
+        category_match = new_item.category == old_item.category
+        name_match     = bool(new_name_words & old_name_words)
+        if not (category_match or name_match):
+            continue
+
+        # Notify the NEW poster about the old item 
+        Notification.objects.create(
+            recipient         = new_item.user,
+            title             = "This item might belong to someone — check it out!",
+            body              = (
+                f'A "{old_item.item_name}" was reported '
+                f'{"found" if candidate_type == "found" else "lost"} '
+                f'near "{old_location}". It could match your report.'
+            ),
+            item_type         = candidate_type,
+            item_id           = old_item.pk,
+            notification_type = Notification.NotifType.MATCH,
+        )
+
+        # Notify the OLD poster about the new item 
+        Notification.objects.create(
+            recipient         = old_item.user,
+            title             = "This item might be yours — check it out!",
+            body              = (
+                f'Someone just reported '
+                f'{"losing" if new_item_type == "lost" else "finding"} '
+                f'a "{new_item.item_name}" near "{new_location}". '
+                f'It could be related to your post.'
+            ),
+            item_type         = new_item_type,
+            item_id           = new_item.pk,
+            notification_type = Notification.NotifType.MATCH,
+        )

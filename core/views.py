@@ -3,7 +3,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, EditProfileForm, ContactForm, LostItemForm, FoundItemForm
-from .models import ContactMessage, LostItem, FoundItem
+from .models import ContactMessage, LostItem, FoundItem, Notification
+from .models import fire_match_notifications
 from django.utils.dateparse import parse_date
 from .models import Review, ReviewReply, ReviewLike
 from .forms  import ReviewForm, AdminReplyForm
@@ -130,6 +131,7 @@ def report_lost_view(request):
         lost_item = form.save(commit=False)
         lost_item.user = request.user
         lost_item.save()
+        fire_match_notifications(lost_item, 'lost')
         messages.success(request, "Your lost item report has been submitted successfully.")
         return redirect('report_lost')
     return render(request, 'core/report_lost.html', {'form': form, 'user': request.user})
@@ -145,6 +147,7 @@ def report_found_view(request):
         found_item = form.save(commit=False)
         found_item.user = request.user
         found_item.save()
+        fire_match_notifications(found_item, 'found')
         messages.success(request, "Your found item report has been submitted successfully.")
         return redirect('report_found')
     return render(request, 'core/report_found.html', {'form': form, 'user': request.user})
@@ -405,7 +408,8 @@ class LostItemViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        item = serializer.save(user=self.request.user)
+        fire_match_notifications(item, 'lost')
 
 class FoundItemViewSet(viewsets.ModelViewSet):
     """
@@ -429,7 +433,8 @@ class FoundItemViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        item = serializer.save(user=self.request.user)
+        fire_match_notifications(item, 'found')
 
 class ClaimViewSet(viewsets.ModelViewSet):
     """

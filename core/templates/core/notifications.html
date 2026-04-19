@@ -25,10 +25,15 @@
     {% if notifications %}
     <ul class="notif-list">
         {% for n in notifications %}
-        <li class="notif-item {% if not n.is_read %}unread{% endif %}" id="notif-{{ n.id }}">
+        <li class="notif-item {% if not n.is_read %}unread{% endif %} {% if n.notification_type == 'match' %}notif-match{% endif %}"
+            id="notif-{{ n.id }}">
 
             <div class="notif-icon-col">
-                {% if not n.is_read %}
+                {% if n.notification_type == 'match' %}
+                    <span class="notif-match-icon" title="Potential item match">
+                        <i class="fa-solid fa-arrows-left-right"></i>
+                    </span>
+                {% elif not n.is_read %}
                     <span class="notif-dot"></span>
                 {% else %}
                     <span class="notif-dot read"></span>
@@ -36,6 +41,11 @@
             </div>
 
             <div class="notif-body-col">
+                {% if n.notification_type == 'match' %}
+                    <span class="notif-match-badge">
+                        <i class="fa-solid fa-arrows-left-right"></i> Potential Match
+                    </span>
+                {% endif %}
                 <p class="notif-title">{{ n.title }}</p>
                 <p class="notif-body">{{ n.body }}</p>
                 <p class="notif-time">
@@ -48,12 +58,16 @@
                 {% if n.item_type and n.item_id %}
                     {% if n.item_type == 'lost' %}
                         <a href="{% url 'lost_item_detail' n.item_id %}"
-                           class="notif-view-btn"
-                           data-id="{{ n.id }}">View Item</a>
+                           class="notif-view-btn {% if n.notification_type == 'match' %}notif-view-btn--match{% endif %}"
+                           data-id="{{ n.id }}">
+                            {% if n.notification_type == 'match' %}See Item{% else %}View Item{% endif %}
+                        </a>
                     {% elif n.item_type == 'found' %}
                         <a href="{% url 'found_item_detail' n.item_id %}"
-                           class="notif-view-btn"
-                           data-id="{{ n.id }}">View Item</a>
+                           class="notif-view-btn {% if n.notification_type == 'match' %}notif-view-btn--match{% endif %}"
+                           data-id="{{ n.id }}">
+                            {% if n.notification_type == 'match' %}See Item{% else %}View Item{% endif %}
+                        </a>
                     {% endif %}
                 {% endif %}
 
@@ -74,7 +88,7 @@
     <div class="notif-empty">
         <i class="fa-regular fa-bell-slash"></i>
         <p>You have no notifications yet.</p>
-        <p class="notif-empty-sub">When someone claims one of your items, you'll be notified here.</p>
+        <p class="notif-empty-sub">You'll be notified here when someone claims one of your items, or when a potential match is found for your report.</p>
     </div>
     {% endif %}
 
@@ -85,12 +99,10 @@
 <script>
 const CSRF = document.cookie.match(/csrftoken=([^;]+)/)?.[1] ?? '';
 
-// Mark single notification as read via AJAX
 document.querySelectorAll('.notif-read-btn').forEach(btn => {
     btn.addEventListener('click', function () {
         const id  = this.dataset.id;
         const row = document.getElementById('notif-' + id);
-
         fetch(`/notifications/${id}/mark-read/`, {
             method:  'POST',
             headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' },
@@ -105,7 +117,6 @@ document.querySelectorAll('.notif-read-btn').forEach(btn => {
     });
 });
 
-// Mark-as-read when clicking "View Item" link
 document.querySelectorAll('.notif-view-btn').forEach(link => {
     link.addEventListener('click', function () {
         const id  = this.dataset.id;
