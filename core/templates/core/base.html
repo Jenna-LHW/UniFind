@@ -181,8 +181,6 @@
         </div>
     </footer>
 
-    {% block extra_js %}{% endblock %}
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
         $(document).ready(function () {
@@ -206,53 +204,56 @@
                 }
             });
 
-            // ── Notification bell dropdown (click-toggle) ──
+            // ── Notification bell dropdown ──
             {% if user.is_authenticated %}
-            const bell        = document.getElementById('notif-bell-btn');
-            const dropdown    = document.getElementById('notif-dropdown');
-            const bellWrap    = document.getElementById('notif-bell-wrap');
-            const CSRF        = document.cookie.match(/csrftoken=([^;]+)/)?.[1] ?? '';
+            const $bell     = $('#notif-bell-btn');
+            const $dropdown = $('#notif-dropdown');
+            const $bellWrap = $('#notif-bell-wrap');
 
-            if (bell && dropdown) {
-                bell.addEventListener('click', function (e) {
+            function getCsrf() {
+                const m = document.cookie.match(/csrftoken=([^;]+)/);
+                return m ? m[1] : '';
+            }
+
+            if ($bell.length && $dropdown.length) {
+                $bell.on('click', function (e) {
                     e.preventDefault();
-                    dropdown.classList.toggle('open');
+                    $dropdown.toggleClass('open');
                 });
 
-                // Close when clicking outside the bell area
-                document.addEventListener('click', function (e) {
-                    if (!bellWrap.contains(e.target)) {
-                        dropdown.classList.remove('open');
+                $(document).on('click', function (e) {
+                    if (!$bellWrap[0].contains(e.target)) {
+                        $dropdown.removeClass('open');
                     }
                 });
             }
 
-            // Mark all read from dropdown header link
-            const markAllBtn = document.getElementById('nd-mark-all');
-            if (markAllBtn) {
-                markAllBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    fetch('/notifications/mark-all-read/', {
-                        method:  'POST',
-                        headers: { 'X-CSRFToken': CSRF },
-                    }).then(r => r.json()).then(data => {
+            // ── Mark all read from dropdown header ──
+            $('#nd-mark-all').on('click', function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url:     '/notifications/mark-all-read/',
+                    method:  'POST',
+                    headers: {
+                        'X-CSRFToken':     getCsrf(),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function (data) {
                         if (data.ok) {
-                            // Clear all unread styling in dropdown
-                            document.querySelectorAll('.notif-dropdown-item.unread').forEach(el => {
-                                el.classList.remove('unread');
-                                el.querySelector('.nd-dot')?.classList.add('read');
+                            $('.notif-dropdown-item.unread').each(function () {
+                                $(this).removeClass('unread');
+                                $(this).find('.nd-dot').addClass('read');
                             });
-                            // Hide badge
-                            const badge = document.getElementById('notif-badge');
-                            if (badge) badge.style.display = 'none';
-                            // Hide the link itself
-                            markAllBtn.style.display = 'none';
+                            $('#notif-badge').hide();
+                            $('#nd-mark-all').hide();
                         }
-                    });
+                    }
                 });
-            }
+            });
             {% endif %}
         });
     </script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

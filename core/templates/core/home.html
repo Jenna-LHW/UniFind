@@ -131,7 +131,10 @@
 
 {% block extra_js %}
 <script>
-    const el = document.getElementById('hero-heading');
+$(document).ready(function () {
+
+    // ── Hero typewriter ──
+    const el   = document.getElementById('hero-heading');
     const text = "Lost Something?\nFound Something?";
     let i = 0;
 
@@ -142,42 +145,49 @@
             setTimeout(type, 80);
         }
     }
-
     type();
 
-    const cards = Array.from(document.querySelectorAll('.recent-card'));
-    const dotsContainer = document.getElementById('carousel-dots');
-    const prevBtn = document.getElementById('carousel-prev');
-    const nextBtn = document.getElementById('carousel-next');
-    const pageSize = 3;
-    let currentPage = 0;
-    const totalPages = Math.ceil(cards.length / pageSize);
+    // ── Recent items carousel ──
+    const $cards     = $('.recent-card');
+    const $dots      = $('#carousel-dots');
+    const $prev      = $('#carousel-prev');
+    const $next      = $('#carousel-next');
+    const pageSize   = 3;
+    let currentPage  = 0;
+    const totalPages = Math.ceil($cards.length / pageSize);
+
+    // Hide all cards initially (goToPage will reveal the right ones)
+    $cards.addClass('hidden');
 
     // Build dots
-    for (let i = 0; i < totalPages; i++) {
-        const dot = document.createElement('button');
-        dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-        dot.setAttribute('aria-label', `Page ${i + 1}`);
-        dot.addEventListener('click', () => goToPage(i));
-        dotsContainer.appendChild(dot);
+    for (let p = 0; p < totalPages; p++) {
+        const $dot = $('<button>')
+            .addClass('carousel-dot' + (p === 0 ? ' active' : ''))
+            .attr('aria-label', 'Page ' + (p + 1))
+            .on('click', (function (pg) {
+                return function () { goToPage(pg); };
+            }(p)));
+        $dots.append($dot);
     }
 
     function goToPage(page) {
         currentPage = page;
-        cards.forEach((card, i) => {
-            card.classList.toggle('hidden', i < page * pageSize || i >= (page + 1) * pageSize);
+        $cards.each(function (idx) {
+            $(this).toggleClass('hidden', idx < page * pageSize || idx >= (page + 1) * pageSize);
         });
-        document.querySelectorAll('.carousel-dot').forEach((d, i) => {
-            d.classList.toggle('active', i === page);
+        $('.carousel-dot').each(function (idx) {
+            $(this).toggleClass('active', idx === page);
         });
-        prevBtn.disabled = page === 0;
-        nextBtn.disabled = page === totalPages - 1;
+        $prev.prop('disabled', page === 0);
+        $next.prop('disabled', page === totalPages - 1);
     }
 
-    prevBtn.addEventListener('click', () => { if (currentPage > 0) goToPage(currentPage - 1); });
-    nextBtn.addEventListener('click', () => { if (currentPage < totalPages - 1) goToPage(currentPage + 1); });
+    $prev.on('click', function () { if (currentPage > 0) goToPage(currentPage - 1); });
+    $next.on('click', function () { if (currentPage < totalPages - 1) goToPage(currentPage + 1); });
 
     goToPage(0);
+
+});
 </script>
 {% endblock %}
 {% endblock %}

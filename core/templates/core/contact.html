@@ -120,42 +120,40 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
 $(document).ready(function () {
 
-    // Character counter on message
+    // ── Character counter ──
     $('#id_message').on('input', function () {
         const len = $(this).val().length;
         const max = 500;
         $('#char-count').text(len + ' / ' + max);
-        if (len > max) {
-            $('#char-count').css('color', '#a32d2d');
-        } else {
-            $('#char-count').css('color', '#7a7670');
-        }
+        $('#char-count').css('color', len > max ? '#a32d2d' : '#7a7670');
     });
 
-    // Client-side validation before submit
-    $('#contact-form').on('submit', function (e) {
-        let valid = true;
+    // ── Clear error on focus ──
+    $('input, textarea').on('focus', function () {
+        const id = $(this).attr('id').replace('id_', '');
+        $('#err-' + id).text('');
+        $(this).removeClass('input-error');
+    });
 
-        // Clear previous errors
+    // ── Client-side validation helper ──
+    function validateContact() {
+        let valid = true;
         $('.field-error').text('');
         $('input, textarea').removeClass('input-error');
 
-        // Name
         const name = $('#id_name').val().trim();
-        if (name === '') {
+        if (!name) {
             $('#err-name').text('Please enter your name.');
             $('#id_name').addClass('input-error');
             valid = false;
         }
 
-        // Email
         const email = $('#id_email').val().trim();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (email === '') {
+        if (!email) {
             $('#err-email').text('Please enter your email.');
             $('#id_email').addClass('input-error');
             valid = false;
@@ -165,17 +163,15 @@ $(document).ready(function () {
             valid = false;
         }
 
-        // Subject
         const subject = $('#id_subject').val().trim();
-        if (subject === '') {
+        if (!subject) {
             $('#err-subject').text('Please enter a subject.');
             $('#id_subject').addClass('input-error');
             valid = false;
         }
 
-        // Message
         const message = $('#id_message').val().trim();
-        if (message === '') {
+        if (!message) {
             $('#err-message').text('Please enter a message.');
             $('#id_message').addClass('input-error');
             valid = false;
@@ -185,21 +181,40 @@ $(document).ready(function () {
             valid = false;
         }
 
-        if (!valid) {
-            e.preventDefault();
-        } else {
-            // Disable button to prevent double submit
-            $('#submit-btn').prop('disabled', true).html(
-                '<i class="fa-solid fa-spinner fa-spin"></i> Sending...'
-            );
-        }
-    });
+        return valid;
+    }
 
-    // Clear error on input focus 
-    $('input, textarea').on('focus', function () {
-        const id = $(this).attr('id').replace('id_', '');
-        $('#err-' + id).text('');
-        $(this).removeClass('input-error');
+    // ── AJAX submit ──
+    $('#contact-form').on('submit', function (e) {
+        e.preventDefault();
+        if (!validateContact()) return;
+
+        const $btn = $('#submit-btn');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Sending...');
+
+        $.ajax({
+            url:         $(this).attr('action') || window.location.pathname,
+            method:      'POST',
+            data:        $(this).serialize(),
+            headers:     { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function (res) {
+                // Show inline success banner then redirect
+                const $banner = $('<div class="message success"></div>').text(res.message);
+                $('.contact-form-card').prepend($banner);
+                $banner.hide().slideDown(300);
+                setTimeout(function () { window.location.reload(); }, 1800);
+            },
+            error: function (xhr) {
+                $btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane"></i> Send Message');
+                const res = xhr.responseJSON || {};
+                if (res.errors) {
+                    $.each(res.errors, function (field, msgs) {
+                        $('#err-' + field).text(msgs[0]);
+                        $('#id_' + field).addClass('input-error');
+                    });
+                }
+            }
+        });
     });
 
 });

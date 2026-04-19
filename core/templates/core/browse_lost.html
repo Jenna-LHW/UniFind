@@ -67,7 +67,7 @@
             </div>
 
             {% if keyword or selected_category or selected_date or selected_status %}
-            <a href="{% url 'browse_lost' %}" class="btn-clear">
+            <a href="#" class="btn-clear" id="clear-filters">
                 <i class="fa-solid fa-xmark"></i> Clear
             </a>
             {% endif %}
@@ -76,71 +76,121 @@
     </form>
 
     <!-- Results -->
-    {% if items %}
-        <div class="items-grid">
-            {% for item in items %}
-            <a href="{% url 'lost_item_detail' item.pk %}" class="item-card item-card-link">
+    <div id="browse-results">
+        {% if items %}
+            <p class="results-count">{{ items.count }} item{{ items.count|pluralize }} found</p>
+            <div class="items-grid">
+                {% for item in items %}
+                <a href="{% url 'lost_item_detail' item.pk %}" class="item-card item-card-link">
 
-                <!-- Photo -->
-                <div class="item-photo">
-                    {% if item.photo %}
-                        <img src="{{ item.photo.url }}" alt="{{ item.item_name }}">
-                    {% else %}
-                        <div class="item-no-photo">
-                            <i class="fa-solid fa-image"></i>
-                            <span>No photo</span>
+                    <!-- Photo -->
+                    <div class="item-photo">
+                        {% if item.photo %}
+                            <img src="{{ item.photo.url }}" alt="{{ item.item_name }}">
+                        {% else %}
+                            <div class="item-no-photo">
+                                <i class="fa-solid fa-image"></i>
+                                <span>No photo</span>
+                            </div>
+                        {% endif %}
+                        <span class="item-category-badge">{{ item.get_category_display }}</span>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="item-info">
+                        <h4 class="item-name">{{ item.item_name }}</h4>
+                        <p class="item-desc">{{ item.description|truncatechars:80 }}</p>
+
+                        <div class="item-meta">
+                            <span><i class="fa-solid fa-location-dot"></i> {{ item.last_seen|truncatechars:30 }}</span>
+                            <span><i class="fa-solid fa-calendar"></i> {{ item.date_lost|date:"d M Y" }}</span>
                         </div>
+
+                        <div class="item-footer">
+                            <span class="item-status status-{{ item.status }}">{{ item.get_status_display }}</span>
+                            <span class="item-user"><i class="fa-solid fa-user"></i> {{ item.user.username }}</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-box-open"></i>
+                <h3>No lost items found</h3>
+                <p>
+                    {% if keyword or selected_category or selected_date %}
+                        Try adjusting your filters.
+                    {% else %}
+                        No lost items have been reported yet.
                     {% endif %}
-                    <span class="item-category-badge">{{ item.get_category_display }}</span>
-                </div>
-
-                <!-- Info -->
-                <div class="item-info">
-                    <h4 class="item-name">{{ item.item_name }}</h4>
-                    <p class="item-desc">{{ item.description|truncatechars:80 }}</p>
-
-                    <div class="item-meta">
-                        <span><i class="fa-solid fa-location-dot"></i> {{ item.last_seen|truncatechars:30 }}</span>
-                        <span><i class="fa-solid fa-calendar"></i> {{ item.date_lost|date:"d M Y" }}</span>
-                    </div>
-
-                    <div class="item-footer">
-                        <span class="item-status status-{{ item.status }}">{{ item.get_status_display }}</span>
-                        <span class="item-user"><i class="fa-solid fa-user"></i> {{ item.user.username }}</span>
-                    </div>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-
-    {% else %}
-        <div class="empty-state">
-            <i class="fa-solid fa-box-open"></i>
-            <h3>No lost items found</h3>
-            <p>
+                </p>
                 {% if keyword or selected_category or selected_date %}
-                    Try adjusting your filters.
-                {% else %}
-                    No lost items have been reported yet.
+                    <a href="{% url 'browse_lost' %}" class="btn-dark">Clear filters</a>
                 {% endif %}
-            </p>
-            {% if keyword or selected_category or selected_date %}
-                <a href="{% url 'browse_lost' %}" class="btn-dark">Clear filters</a>
-            {% endif %}
-        </div>
-    {% endif %}
+            </div>
+        {% endif %}
+    </div>
 
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
 $(document).ready(function () {
-    // Auto submit on category or date change
-    $('#category-select, #date-input, #status-select').on('change', function () {
-        $('#filter-form').submit();
+
+    let searchTimer = null;
+
+    function fetchResults() {
+        const params = $('#filter-form').serialize();
+        // Update browser URL without reload
+        const newUrl = window.location.pathname + '?' + params;
+        window.history.replaceState(null, '', newUrl);
+
+        $('#browse-results').css('opacity', 0.5);
+
+        $.ajax({
+            url:     window.location.pathname,
+            method:  'GET',
+            data:    params,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function (html) {
+                $('#browse-results').html(html).css('opacity', 1);
+            },
+            error: function () {
+                $('#browse-results').css('opacity', 1);
+            }
+        });
+    }
+
+    // Live search — debounced 400ms
+    $('#search-input').on('input', function () {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(fetchResults, 400);
     });
+
+    // Instant on select/date change
+    $('#category-select, #date-input, #status-select').on('change', function () {
+        fetchResults();
+    });
+
+    // Clear filters button
+    $(document).on('click', '#clear-filters', function (e) {
+        e.preventDefault();
+        $('#search-input').val('');
+        $('#category-select').val('');
+        $('#date-input').val('');
+        $('#status-select').val('');
+        fetchResults();
+    });
+
+    // Prevent default form submit (we handle it via AJAX)
+    $('#filter-form').on('submit', function (e) {
+        e.preventDefault();
+        fetchResults();
+    });
+
 });
 </script>
 {% endblock %}

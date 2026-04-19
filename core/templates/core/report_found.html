@@ -140,7 +140,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
 $(document).ready(function () {
 
@@ -179,14 +178,13 @@ $(document).ready(function () {
         $('#photo-upload-area').show();
     });
 
-    // ── Client side validation ──
-    $('#report-form').on('submit', function (e) {
+    // ── Client-side validation ──
+    function validateReport() {
         let valid = true;
         $('.field-error').text('');
         $('input, select, textarea').removeClass('input-error');
 
-        const required = ['id_item_name', 'id_category', 'id_description', 'id_found_at', 'id_date_found'];
-        const labels = {
+        const required = {
             'id_item_name':   'Item name is required.',
             'id_category':    'Please select a category.',
             'id_description': 'Please provide a description.',
@@ -194,21 +192,57 @@ $(document).ready(function () {
             'id_date_found':  'Please select the date found.',
         };
 
-        required.forEach(function (id) {
+        $.each(required, function (id, msg) {
             const field = $('#' + id);
             if (!field.val() || field.val().trim() === '') {
                 field.addClass('input-error');
-                field.closest('.form-group').find('.field-error').text(labels[id]);
+                field.closest('.form-group').find('.field-error').text(msg);
                 valid = false;
             }
         });
 
-        if (!valid) {
-            e.preventDefault();
+        return valid;
+    }
+
+    // ── AJAX submit with FormData (supports file upload) ──
+    $('#report-form').on('submit', function (e) {
+        e.preventDefault();
+        if (!validateReport()) {
             $('html, body').animate({ scrollTop: $('.input-error').first().offset().top - 100 }, 400);
-        } else {
-            $('#submit-btn').prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Submitting...');
+            return;
         }
+
+        const $btn = $('#submit-btn');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Submitting...');
+
+        const formData = new FormData(this);
+
+        $.ajax({
+            url:         window.location.pathname,
+            method:      'POST',
+            data:        formData,
+            processData: false,
+            contentType: false,
+            headers:     { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function (res) {
+                const $banner = $('<div class="message success"></div>').text(res.message);
+                $('.report-container').prepend($banner);
+                $banner.hide().slideDown(300);
+                setTimeout(function () { window.location.reload(); }, 1800);
+            },
+            error: function (xhr) {
+                $btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane"></i> Submit Report');
+                const res = xhr.responseJSON || {};
+                if (res.errors) {
+                    $.each(res.errors, function (field, msgs) {
+                        const $field = $('#id_' + field);
+                        $field.addClass('input-error');
+                        $field.closest('.form-group').find('.field-error').text(msgs[0]);
+                    });
+                    $('html, body').animate({ scrollTop: $('.input-error').first().offset().top - 100 }, 400);
+                }
+            }
+        });
     });
 
 });

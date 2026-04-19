@@ -23,7 +23,9 @@
                 <p>{% if item.last_seen %}{{ item.last_seen }}{% else %}{{ item.found_at }}{% endif %}</p>
             </div>
 
-            <form method="POST">
+            <div id="claim-message"></div>
+
+            <form id="claim-form" method="POST">
                 {% csrf_token %}
                 
                 <div class="form-group">
@@ -35,13 +37,14 @@
                         rows="6" 
                         placeholder="Provide details to verify ownership (e.g., specific marks, contents, or precise time/location)." 
                         required></textarea>
+                    <span class="field-error" id="err-details"></span>
                 </div>
 
                 <div class="claim-actions">
                     <a href="javascript:history.back()" class="link-back">
                         <i class="fas fa-chevron-left" style="font-size: 10px;"></i> Back to Browse
                     </a>
-                    <button type="submit" class="btn-submit">
+                    <button type="submit" class="btn-submit" id="claim-submit-btn">
                         Submit Claim Request
                     </button>
                 </div>
@@ -54,4 +57,56 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function () {
+
+    $('#claim-form').on('submit', function (e) {
+        e.preventDefault();
+
+        const details = $('#details').val().trim();
+        $('#err-details').text('');
+        $('#details').removeClass('input-error');
+
+        if (!details) {
+            $('#err-details').text('Supporting details are required.');
+            $('#details').addClass('input-error');
+            return;
+        }
+
+        const $btn = $('#claim-submit-btn');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Submitting...');
+
+        $.ajax({
+            url:     window.location.pathname,
+            method:  'POST',
+            data:    $(this).serialize(),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function (res) {
+                const $banner = $('<div class="message success"></div>').text(res.message);
+                $('#claim-message').html($banner);
+                $banner.hide().slideDown(300);
+                setTimeout(function () {
+                    window.location.href = res.redirect || '/';
+                }, 1500);
+            },
+            error: function (xhr) {
+                $btn.prop('disabled', false).html('Submit Claim Request');
+                const res = xhr.responseJSON || {};
+                if (res.errors && res.errors.details) {
+                    $('#err-details').text(res.errors.details[0]);
+                    $('#details').addClass('input-error');
+                } else {
+                    const $banner = $('<div class="message error"></div>').text('Something went wrong. Please try again.');
+                    $('#claim-message').html($banner);
+                    $banner.hide().slideDown(300);
+                }
+            }
+        });
+    });
+
+});
+</script>
 {% endblock %}

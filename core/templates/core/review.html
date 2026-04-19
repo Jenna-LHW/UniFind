@@ -229,7 +229,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
 $(document).ready(function () {
 
@@ -240,17 +239,17 @@ $(document).ready(function () {
     stars.on('mouseover', function () {
         const val = $(this).data('value');
         stars.each(function (i) {
-            $(this).removeClass('fa-regular fa-solid');
-            $(this).addClass(i < val ? 'fa-solid' : 'fa-regular');
-            $(this).css('color', i < val ? '#e4a600' : '#d6d1c8');
+            $(this).removeClass('fa-regular fa-solid')
+                   .addClass(i < val ? 'fa-solid' : 'fa-regular')
+                   .css('color', i < val ? '#e4a600' : '#d6d1c8');
         });
     });
 
     stars.on('mouseleave', function () {
         stars.each(function (i) {
-            $(this).removeClass('fa-regular fa-solid');
-            $(this).addClass(i < selectedRating ? 'fa-solid' : 'fa-regular');
-            $(this).css('color', i < selectedRating ? '#e4a600' : '#d6d1c8');
+            $(this).removeClass('fa-regular fa-solid')
+                   .addClass(i < selectedRating ? 'fa-solid' : 'fa-regular')
+                   .css('color', i < selectedRating ? '#e4a600' : '#d6d1c8');
         });
     });
 
@@ -258,14 +257,16 @@ $(document).ready(function () {
         selectedRating = $(this).data('value');
         $('#id_rating').val(selectedRating);
         stars.each(function (i) {
-            $(this).removeClass('fa-regular fa-solid');
-            $(this).addClass(i < selectedRating ? 'fa-solid' : 'fa-regular');
-            $(this).css('color', i < selectedRating ? '#e4a600' : '#d6d1c8');
+            $(this).removeClass('fa-regular fa-solid')
+                   .addClass(i < selectedRating ? 'fa-solid' : 'fa-regular')
+                   .css('color', i < selectedRating ? '#e4a600' : '#d6d1c8');
         });
+        $('#rating-error').text('');
     });
 
-    // ── Form validation ──
+    // ── Review form — AJAX submit ──
     $('#review-form').on('submit', function (e) {
+        e.preventDefault();
         let valid = true;
 
         if (!selectedRating) {
@@ -276,28 +277,57 @@ $(document).ready(function () {
         }
 
         if ($('#id_comment').val().trim() === '') {
-            e.preventDefault();
             valid = false;
         }
 
-        if (!valid) e.preventDefault();
+        if (!valid) return;
+
+        const $btn = $(this).find('button[type="submit"]');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Submitting...');
+
+        $.ajax({
+            url:     window.location.pathname,
+            method:  'POST',
+            data:    $(this).serialize(),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function (res) {
+                const $banner = $('<div class="message success"></div>').text(res.message);
+                $('.write-review-card').prepend($banner);
+                $banner.hide().slideDown(300);
+                setTimeout(function () { window.location.reload(); }, 1800);
+            },
+            error: function (xhr) {
+                $btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane"></i> Submit Review');
+                const res = xhr.responseJSON || {};
+                if (res.message) {
+                    const $banner = $('<div class="message error"></div>').text(res.message);
+                    $('.write-review-card').prepend($banner);
+                    $banner.hide().slideDown(300);
+                } else if (res.errors) {
+                    $.each(res.errors, function (field, msgs) {
+                        $('#id_' + field).closest('.form-group').find('.field-error').text(msgs[0]);
+                    });
+                }
+            }
+        });
     });
 
-    // ── Like button (AJAX) ──
+    // ── Like button — AJAX ──
     $('.like-btn').on('click', function () {
-        const btn      = $(this);
-        const reviewId = btn.data('id');
+        const $btn     = $(this);
+        const reviewId = $btn.data('id');
 
-        $.post(`/review/${reviewId}/like/`, {
-            csrfmiddlewaretoken: '{{ csrf_token }}'
-        }, function (data) {
-            btn.find('.like-count').text(data.total_likes);
-            if (data.liked) {
-                btn.addClass('liked');
-                btn.find('i').removeClass('fa-regular').addClass('fa-solid');
-            } else {
-                btn.removeClass('liked');
-                btn.find('i').removeClass('fa-solid').addClass('fa-regular');
+        $.ajax({
+            url:     '/review/' + reviewId + '/like/',
+            method:  'POST',
+            data:    { csrfmiddlewaretoken: '{{ csrf_token }}' },
+            success: function (data) {
+                $btn.find('.like-count').text(data.total_likes);
+                if (data.liked) {
+                    $btn.addClass('liked').find('i').removeClass('fa-regular').addClass('fa-solid');
+                } else {
+                    $btn.removeClass('liked').find('i').removeClass('fa-solid').addClass('fa-regular');
+                }
             }
         });
     });

@@ -104,23 +104,21 @@
     </div>
 </body>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const roleField = document.querySelector("#id_role");
-    const studentFieldWrapper = document.querySelector("#id_student_id")?.closest(".form-group");
+$(document).ready(function () {
+    const $roleField          = $('#id_role');
+    const $studentFieldWrapper = $('#id_student_id').closest('.form-group');
 
-    if (!roleField || !studentFieldWrapper) return;
-
-    const STUDENT_VALUE = roleField.querySelector("option")?.value; // fallback
+    if (!$roleField.length || !$studentFieldWrapper.length) return;
 
     function toggle() {
-        if (roleField.value.toLowerCase().includes("student")) {
-            studentFieldWrapper.style.display = "block";
+        if ($roleField.val().toLowerCase().includes('student')) {
+            $studentFieldWrapper.show();
         } else {
-            studentFieldWrapper.style.display = "none";
+            $studentFieldWrapper.hide();
         }
     }
 
-    roleField.addEventListener("change", toggle);
+    $roleField.on('change', toggle);
     toggle();
 });
 </script>

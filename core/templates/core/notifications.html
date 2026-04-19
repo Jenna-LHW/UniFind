@@ -97,52 +97,87 @@
 
 {% block extra_js %}
 <script>
-const CSRF = document.cookie.match(/csrftoken=([^;]+)/)?.[1] ?? '';
+$(document).ready(function () {
 
-document.querySelectorAll('.notif-read-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        const id  = this.dataset.id;
-        const row = document.getElementById('notif-' + id);
-        fetch(`/notifications/${id}/mark-read/`, {
+    // ── Mark single notification as read ──
+    $('.notif-read-btn').on('click', function () {
+        const $btn = $(this);
+        const id   = $btn.data('id');
+        const $row = $('#notif-' + id);
+
+        $.ajax({
+            url:     '/notifications/' + id + '/mark-read/',
             method:  'POST',
-            headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' },
-        }).then(r => r.json()).then(data => {
-            if (data.ok) {
-                row.classList.remove('unread');
-                row.querySelector('.notif-dot')?.classList.add('read');
-                this.remove();
-                updateBadge(-1);
+            headers: { 'X-CSRFToken': getCsrf(), 'Content-Type': 'application/json' },
+            success: function (data) {
+                if (data.ok) {
+                    $row.removeClass('unread');
+                    $row.find('.notif-dot').addClass('read');
+                    $btn.remove();
+                    updateBadge(-1);
+                }
             }
         });
     });
-});
 
-document.querySelectorAll('.notif-view-btn').forEach(link => {
-    link.addEventListener('click', function () {
-        const id  = this.dataset.id;
-        const row = document.getElementById('notif-' + id);
-        if (row && row.classList.contains('unread')) {
-            fetch(`/notifications/${id}/mark-read/`, {
+    // ── Mark as read when clicking "View Item" ──
+    $('.notif-view-btn').on('click', function () {
+        const id   = $(this).data('id');
+        const $row = $('#notif-' + id);
+
+        if ($row.length && $row.hasClass('unread')) {
+            $.ajax({
+                url:     '/notifications/' + id + '/mark-read/',
                 method:  'POST',
-                headers: { 'X-CSRFToken': CSRF },
-            }).then(r => r.json()).then(data => {
-                if (data.ok) {
-                    row.classList.remove('unread');
-                    row.querySelector('.notif-dot')?.classList.add('read');
-                    row.querySelector('.notif-read-btn')?.remove();
-                    updateBadge(-1);
+                headers: { 'X-CSRFToken': getCsrf() },
+                success: function (data) {
+                    if (data.ok) {
+                        $row.removeClass('unread');
+                        $row.find('.notif-dot').addClass('read');
+                        $row.find('.notif-read-btn').remove();
+                        updateBadge(-1);
+                    }
                 }
             });
         }
     });
-});
 
-function updateBadge(delta) {
-    const badge = document.querySelector('.notif-badge');
-    if (!badge) return;
-    let count = parseInt(badge.textContent || '0') + delta;
-    if (count <= 0) { badge.style.display = 'none'; }
-    else { badge.textContent = count; badge.style.display = ''; }
-}
+    // ── Mark all as read (form submit → AJAX) ──
+    $('form[action*="mark-all-read"]').on('submit', function (e) {
+        e.preventDefault();
+
+        $.ajax({
+            url:     '/notifications/mark-all-read/',
+            method:  'POST',
+            headers: { 'X-CSRFToken': getCsrf(), 'X-Requested-With': 'XMLHttpRequest' },
+            success: function (data) {
+                if (data.ok) {
+                    $('.notif-item.unread').removeClass('unread');
+                    $('.notif-dot').addClass('read');
+                    $('.notif-read-btn').remove();
+                    updateBadge('reset');
+                }
+            }
+        });
+    });
+
+    function updateBadge(delta) {
+        const $badge = $('.notif-badge');
+        if (!$badge.length) return;
+        if (delta === 'reset') {
+            $badge.hide();
+            return;
+        }
+        let count = parseInt($badge.text() || '0') + delta;
+        if (count <= 0) { $badge.hide(); }
+        else { $badge.text(count).show(); }
+    }
+
+    function getCsrf() {
+        const m = document.cookie.match(/csrftoken=([^;]+)/);
+        return m ? m[1] : '';
+    }
+
+});
 </script>
 {% endblock %}
